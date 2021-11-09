@@ -4,9 +4,17 @@ const Author = require('../models/author')
 
 // All Authors Route 
 router.get('/', async (req, res) => {
+    let searchOptions = {}
+    if (req.query.name != null && req.query.name !== '') {
+        // make searching for authors case insensitive
+        searchOptions.name = new RegExp(req.query.name, 'i')
+    }
     try {
-        const authors = await Author.find({})
-    res.render('authors/index', { authors: authors })    
+        const authors = await Author.find(searchOptions)
+        // populate the search bar with the searched author 
+    res.render('authors/index', { authors: authors, 
+        searchOptions: req.query 
+    })    
     } catch {
         res.redirect('/')
         
@@ -24,7 +32,6 @@ router.post('/', async (req, res) => {
     const author = new Author({
         name: req.body.name
     })
-
     try {
         const newAuthor = await author.save()
         // res.redirect(`authors/${newAuthor.id}`)
