@@ -6,6 +6,7 @@ const Author = require('../models/author')
 // All Authors Route 
 router.get('/', async (req, res) => {
     let searchOptions = {}
+    //make sure author cant be empty 
     if (req.query.name != null && req.query.name !== '') {
         // make searching for authors case insensitive
         searchOptions.name = new RegExp(req.query.name, 'i')
@@ -46,7 +47,7 @@ router.post('/', async (req, res) => {
         })
     }
 })
-
+// search author route
 router.get('/:id', async (req, res) => {
     try {
         const author = await Author.findById(req.params.id)
@@ -61,7 +62,7 @@ router.get('/:id', async (req, res) => {
         res.redirect('/')
     }
 })
-
+// render edit author page 
 router.get('/:id/edit', async (req, res) => {
     try {
         const author = await Author.findById(req.params.id)
@@ -72,7 +73,7 @@ router.get('/:id/edit', async (req, res) => {
         res.redirect('/authors')
     }
 })
-
+// update author route 
 router.put('/:id', async (req, res) => {
     let author
     try {
@@ -91,7 +92,7 @@ router.put('/:id', async (req, res) => {
         }
     }
 })
-
+// delete an author route
 router.delete('/:id', async (req, res) => {
     let author
     try {

@@ -20,6 +20,11 @@
  book.publishDate.toISOString().split('T')[0] %>">
 </div>
 <div>
+    <label>Created Date</label>
+    <input type="date" name="createdDate" value="<%= book.createdDate == null ? '' : 
+ book.createdDate.toISOString().split('T')[0] %>">
+</div>
+<div>
     <label>Copies Sold</label>
     <input type="number" name="copiesSold" min="1" value="<%= book.copiesSold %>">
 </div>

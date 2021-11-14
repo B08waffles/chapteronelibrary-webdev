@@ -4,8 +4,16 @@ const Book = require('../models/book')
 const Author = require('../models/author')
 const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 
+const authCheck = (req, res, next) => {
+    if (!req.user) {
+        res.redirect('../login')
+    } else {
+        next();
+    }
+}
+
 // All Books Route 
-router.get('/', async (req, res) => {
+router.get('/', authCheck, async (req, res) => {
     // Search for books with case insensitivity
     let query = Book.find()
     if (req.query.title != null && req.query.title != '') {
@@ -31,14 +39,14 @@ router.get('/', async (req, res) => {
 })
 
 // New Book Route 
-router.get('/new', async (req, res) => {
+router.get('/new', authCheck, async (req, res) => {
     renderNewPage(res, new Book())
 
 
 })
 
 // Create Book Route
-router.post('/', async (req, res) => {
+router.post('/', authCheck, async (req, res) => {
     const book = new Book({
         title: req.body.title,
         author: req.body.author,
@@ -57,7 +65,7 @@ router.post('/', async (req, res) => {
 })
 
 // Show Book Route
-router.get('/:id', async (req, res) => {
+router.get('/:id', authCheck, async (req, res) => {
     try {
         const book = await Book.findById(req.params.id)
             .populate('author')
@@ -71,7 +79,7 @@ router.get('/:id', async (req, res) => {
 })
 
 // Edit Book Route
-router.get('/:id/edit', async (req, res) => {
+router.get('/:id/edit', authCheck, async (req, res) => {
     try {
         const book = await Book.findById(req.params.id)
         renderEditPage(res, book)
@@ -81,7 +89,7 @@ router.get('/:id/edit', async (req, res) => {
 })
 
 // Update Book Route
-router.put('/:id', async (req, res) => {
+router.put('/:id', authCheck, async (req, res) => {
     let book
 
     try {
@@ -107,7 +115,7 @@ router.put('/:id', async (req, res) => {
 })
 
 // Delete Book Page
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authCheck, async (req, res) => {
     let book
     try {
         book = await Book.findById(req.params.id)
