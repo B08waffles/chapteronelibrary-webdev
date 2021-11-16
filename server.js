@@ -2,6 +2,110 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 };
 
+const express = require("express");
+const server = express();
+//const port = 3000;
+const session = require("express-session");
+const expressLayouts = require('express-ejs-layouts');
+const bodyParser = require('body-parser');
+const methodOverride = require('method-override');
+// define the routes/controller paths
+const indexRouter = require('./routes/index');
+const authorRouter = require('./routes/authors');
+const bookRouter = require('./routes/books');
+// enable form method overides
+server.use(methodOverride('_method'));
+server.use(express.static('public'));
+
+// allow server to use .ejs files 
+server.set('view engine', 'ejs');
+server.set('views', __dirname + '/views');
+// put all common html elements in the one file "layouts" to be added to other pages
+server.set('layout', 'layouts/layout');
+server.use(expressLayouts);
+server.use('/', indexRouter)
+server.use('/authors', authorRouter)
+server.use('/books', bookRouter)
+
+// integrate database 
+const mongoose = require('mongoose');
+mongoose.connect(process.env.DATABASE_URL, {
+  useNewUrlParser: true
+});
+const db = mongoose.connection;
+db.on('error', error => console.error(error));
+db.once('open', () => console.log('Connected to Mongoose'));
+
+// host application locally for testing purposes, type in browser localhost:3000 to access
+server.listen(process.env.PORT || 3000);
+
+// Enable middleware for JSON and urlencoded form data
+server.use(express.json())
+server.use(express.urlencoded({ extended: true }))
+
+// Enable session middleware so that we have state
+server.use(session({
+    secret: 'secret',
+    resave: false,
+    saveUninitialized: false,
+    cookie: { secure: false } // Should be turned to true in production (HTTPS only)
+}))
+
+// Setup our own access control middleware
+// Must happen after JSON and session middleware but before static files
+server.use((req, res, next) => {
+    // The user is logged in if they have session data
+    let userLoggedIn = req.session.user != null
+
+    // URLs we will allow for non logged in clients (guests)
+    let guestAllowedURLs = [
+        "/index.ejs",
+        "/js/login.js",
+        "/public/styles/main.css",
+        "/views/users/login.ejs",
+        
+    ]
+
+
+    if (userLoggedIn) {
+        // Allow the request through
+        next()
+    } else {
+        // Check that the guest page is only
+        // asking for an allowed resource
+        if (guestAllowedURLs.includes(req.originalUrl)) {
+            // Allow the guest user through
+            next()
+        } else {
+            // Redirect them to the login page
+            res.redirect("/views/users/login")
+        }
+    }
+})
+
+// Serve static frontend resources
+server.use(express.static("views"))
+
+// Link up book controller
+//const bookController = require("./backend/controllers/bookController")
+//server.use("/api", bookController)
+
+// Link up the user controller
+const userController = require("./routes/userController")
+server.use("/api", userController)
+
+// Link up the author controller
+//const authorController = require("./backend/controllers/authorController")
+//server.use("/api", authorController)
+
+// Start the express server
+//server.listen(port, () => {
+//    console.log("Backend listening on http://localhost:"+port)
+//})
+
+
+
+/* my code before 
 // type "npm run devStart" to enter dev mode with nodemon and our .env file on localhost:3000"
 
 const express = require('express');
@@ -13,6 +117,7 @@ const methodOverride = require('method-override');
 const indexRouter = require('./routes/index');
 const authorRouter = require('./routes/authors');
 const bookRouter = require('./routes/books');
+const userRouter = require('./routes/users');
 //bcrypt for password hashing
 const bcrypt = require('bcrypt');
 const passport = require('passport');
@@ -35,8 +140,16 @@ app.use(bodyParser.urlencoded({
   limit: '10mb',
   extended: false
 }));
+// implement sequelize ORM for SQL and user model
+const sequelize = require("./util/database");
+const User = require("./models/user");
 
-
+sequelize.sync().then(result => {
+    console.log(result);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 // integrate database 
 const mongoose = require('mongoose');
 mongoose.connect(process.env.DATABASE_URL, {
@@ -45,6 +158,8 @@ mongoose.connect(process.env.DATABASE_URL, {
 const db = mongoose.connection;
 db.on('error', error => console.error(error));
 db.once('open', () => console.log('Connected to Mongoose'));
+
+// MySQL database integration can be found via ../util/database.js its currently set for the users table
 
 // host application locally for testing purposes, type in browser localhost:3000 to access
 app.listen(process.env.PORT || 3000);
@@ -58,12 +173,7 @@ initializePassport(
   id => users.find(user => user.id === id)
 );
 
-const users = [{
-  id: '1636603493024',
-  name: 'b',
-  email: 'b@b',
-  password: '$2b$10$bQrQaHw03PSTjWtZQg9HwuJzIo5RKxvnAChpvr7VgQyX0PX/2jl1.'
-}];
+
 
 /*
 app.get(authorRouter, checkAuthenticated, (req, res) => {
@@ -77,7 +187,7 @@ app.get(bookRouter, checkAuthenticated, (req, res) => {
     name: req.user.username
   })
 });
-*/
+*/ /*
 app.use(express.urlencoded({
   extended: false
 }));
@@ -90,7 +200,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-
+app.use('/', userRouter)
 
 app.get('/', checkAuthenticated, (req, res) => {
   if (req.user) {
@@ -98,7 +208,7 @@ app.get('/', checkAuthenticated, (req, res) => {
       name: req.user.name
     });
   } else {
-        res.redirect('/login');
+    res.redirect('/login');
   }
 });
 
@@ -132,7 +242,7 @@ app.post('/register', checkNotAuthenticated, async (req, res) => {
   }
   console.log(users)
 });
-           
+
 
 // Middleware to check if logged in           
 function checkAuthenticated(req, res, next) {
@@ -161,7 +271,7 @@ function checkAuthenticated(req, res, next) {
 
     app.get('/books/new', checkAuthenticated, (req, res) => {
       res.render('books/new.ejs', {
-        name: req.user.name 
+        name: req.user.name
       })
     });
 
@@ -179,7 +289,7 @@ function checkAuthenticated(req, res, next) {
     return next();
   }
 
-return res.redirect('/login')
+  return res.redirect('/login')
 };
 
 // Logout user
@@ -191,12 +301,12 @@ return res.redirect('/login')
 
 //Logout
 indexRouter.get('/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if(err) {
-            return console.log(err);
-        }
-        res.redirect('/');
-    });
+  req.session.destroy((err) => {
+    if (err) {
+      return console.log(err);
+    }
+    res.redirect('/');
+  });
   req.logout();
   req.session = null;
 });
@@ -216,6 +326,8 @@ function checkNotAuthenticated(req, res, next) {
   }
   next()
 };
+
+*/
 
 // create endpoints for books 
 //app.use('/books/', bookRouter); 
