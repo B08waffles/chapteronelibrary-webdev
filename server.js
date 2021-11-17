@@ -60,7 +60,7 @@ server.use((req, res, next) => {
     // URLs we will allow for non logged in clients (guests)
     let guestAllowedURLs = [
         "/index.ejs",
-        "/js/login.js",
+        "/js/login.ejs",
         "/public/styles/main.css",
         "/views/users/login.ejs",
         
