@@ -1,8 +1,8 @@
-//// Load up existing data!
-let urlParameters = new URLSearchParams(window.location.search)
+// Load up existing data!
+//let urlParameters = new URLSearchParams(window.location.search)
 
 // Access the user ID from the query string (ie. ?id=1)
-let userId = urlParameters.get("id")
+//let userId = urlParameters.get("id")
 
 if (userId) {
     // Get existing user information
@@ -39,6 +39,6 @@ function postUpdateUser() {
     .then(response => {
         alert(response)
         // Redirect back to user list
-        window.location.href = "list_users.html"
+        window.location.href = "list_users.ejs"
     })
 }

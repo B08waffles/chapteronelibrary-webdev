@@ -9,25 +9,20 @@ const session = require("express-session");
 const expressLayouts = require('express-ejs-layouts');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
-// define the routes/controller paths
-const indexRouter = require('./routes/index');
-const authorRouter = require('./routes/authors');
-const bookRouter = require('./routes/books');
+
 // enable form method overides
 server.use(methodOverride('_method'));
 server.use(express.static('public'));
 
-// allow server to use .ejs files 
+// allow server to use .ejs files so we can do <%=   %> tags to not have to repeat code everywhere
 server.set('view engine', 'ejs');
 server.set('views', __dirname + '/views');
 // put all common html elements in the one file "layouts" to be added to other pages
 server.set('layout', 'layouts/layout');
 server.use(expressLayouts);
-server.use('/', indexRouter)
-server.use('/authors', authorRouter)
-server.use('/books', bookRouter)
 
-// integrate database 
+
+// integrate database    This mongodb is setup for books and authors, see /util/database for sql users setup
 const mongoose = require('mongoose');
 mongoose.connect(process.env.DATABASE_URL, {
   useNewUrlParser: true
@@ -50,7 +45,7 @@ server.use(session({
     saveUninitialized: false,
     cookie: { secure: false } // Should be turned to true in production (HTTPS only)
 }))
-
+/*
 // Setup our own access control middleware
 // Must happen after JSON and session middleware but before static files
 server.use((req, res, next) => {
@@ -59,10 +54,12 @@ server.use((req, res, next) => {
 
     // URLs we will allow for non logged in clients (guests)
     let guestAllowedURLs = [
-        "/index.ejs",
-        "/js/login.ejs",
+        "/login.ejs",
+        "/layout/layout.ejs",
+        "/js/login.js",
+        "/partials/header.ejs",
         "/public/styles/main.css",
-        "/views/users/login.ejs",
+        "/api/users/login",
         
     ]
 
@@ -78,11 +75,11 @@ server.use((req, res, next) => {
             next()
         } else {
             // Redirect them to the login page
-            res.redirect("/views/users/login")
+            res.redirect("/login.ejs")
         }
     }
-})
-
+});
+*/
 // Serve static frontend resources
 server.use(express.static("views"))
 
@@ -92,7 +89,15 @@ server.use(express.static("views"))
 
 // Link up the user controller
 const userController = require("./routes/userController")
+// define the routes/controller paths
+const indexRouter = require('./routes/index');
+const authorRouter = require('./routes/authors');
+const bookRouter = require('./routes/books');
 server.use("/api", userController)
+server.use('/', indexRouter)
+server.use('/authors', authorRouter)
+server.use('/books', bookRouter)
+//server.use('/users', userController)
 
 // Link up the author controller
 //const authorController = require("./backend/controllers/authorController")
@@ -105,7 +110,7 @@ server.use("/api", userController)
 
 
 
-/* my code before 
+/* My code before Jasper released his on Connect
 // type "npm run devStart" to enter dev mode with nodemon and our .env file on localhost:3000"
 
 const express = require('express');
@@ -459,5 +464,4 @@ app.use('/', indexRouter)
 app.use('/authors', authorRouter)
 app.use('/books', bookRouter)
 
-app.listen(process.env.PORT || 3000)
-*/
+app.listen(process.env.PORT || 3000)*/

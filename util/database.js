@@ -2,14 +2,14 @@
 const mysql = require("mysql2");
 
 // Create a connection to the database
-const connection = mysql.createConnection({
+const con = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'password',
-  database: 'new_books'
+  database: 'new_books'  //This is the provided sample database, just renamed
 });
 
-connection.connect(function(err) {
+con.connect(function(err) {
   if (err) {
     return console.error('error:' + err.message);
   }
@@ -21,7 +21,7 @@ connection.connect(function(err) {
 // way along with expressJS.
 const query = (sql, parameters) => {
   return new Promise((resolve, reject) => {
-    connection.query(sql, parameters, (error, results) => {
+    con.query(sql, parameters, (error, results) => {
       if (error) {
         reject(error)
       } else {
@@ -36,7 +36,14 @@ const query = (sql, parameters) => {
 module.exports = {
   query
 }
-exports.connection = connection
+exports.connection = con
+
+con.connect(function(err) {
+  if (err) throw err;
+  console.log("Connected!");
+  
+  
+  });
 
 /*
 // integrate MySQL database 

@@ -9,7 +9,7 @@ function postLogoutUser() {
         console.log("user logout request sent!")
         alert(res)
         // Redirect back to user list
-        window.location.href = "login.html"
+        window.location.href = "login.ejs"
     })
     .catch(error => {
         // handle the error from the server

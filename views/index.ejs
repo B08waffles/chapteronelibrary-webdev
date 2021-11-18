@@ -1,25 +1,21 @@
-<div id="content">
+<header> <script src="js/login.js" defer></script><div id="content"></div></header> 
   <div class="post">
  
     <h3>Welcome to the book library!</h3>
     
-    <h1>Register</h1>
-<form id="create-user-form">
-  <label for="firstName">First Name:</label>
-  <input type="text" id="firstName" name="firstName">
-  <label for="lastName">Last Name:</label>
-  <input type="text" id="lastName" name="lastName">
-  <label for="email">Email:</label>
-  <input type="text" id="email" name="email">
-  <label for="username">Username:</label>
-  <input type="text" id="username" name="username">
-  <label for="password">Password:</label>
-  <input type="password" id="password" name="password">
-  <label for="accessRights">Access Rights:</label>
-  <input type="text" id="accessRights" name="accessRights">
-  <input type="button" value="Create User" onclick="postCreateUser()">
-</form>
+
+    <h1>Login</h1>
+    
    
+    <form id="login-user-form">
+      <label for="username">Username:</label>
+      <input type="text" id="username" name="username">
+      <label for="password">Password:</label>
+      <input type="password" id="password" name="password">
+      <input type="button" value="Login" onclick="postLoginUser()">
+   
+    </form>
+    
    </div>
   </div>
   <!---</div> <button type="submit">Log Out</button> <form action="/logout" method="get">-->

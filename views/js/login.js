@@ -20,7 +20,7 @@ function postLoginUser() {
         console.log("user login request sent!")
         alert(res)
         // Redirect back to user list
-        window.location.href = "list_users.html"
+        window.location.href = "list_users.ejs"
     })
     .catch(error => {
         // handle the error from the server

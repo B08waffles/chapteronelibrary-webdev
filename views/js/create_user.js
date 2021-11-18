@@ -7,7 +7,7 @@ function postCreateUser() {
     console.log(formDataJSON)
 
     // Post the form JSON to the backend
-    fetch("/api/users/create", {
+    fetch("api/users/create", {
         method: "POST",
         headers: {
             'Content-Type': "application/json"
@@ -20,7 +20,7 @@ function postCreateUser() {
         console.log("Create user request sent!")
         alert(res)
         // Redirect back to user list
-        window.location.href = "list_users.html"
+        window.location.href = "list_users.ejs"
     })
     .catch(error => {
         // handle the error from the server
