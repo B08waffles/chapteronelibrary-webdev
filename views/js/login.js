@@ -9,7 +9,7 @@ function postLoginUser() {
     // Post the form JSON to the backend
     fetch("/api/users/login", {
         method: "POST",
-        headers: {
+        headers: { 
             'Content-Type': "application/json"
         },
         body: formDataJSON
@@ -20,7 +20,7 @@ function postLoginUser() {
         console.log("user login request sent!")
         alert(res)
         // Redirect back to user list
-        window.location.href = "list_users.ejs"
+        res.render('list_users')
     })
     .catch(error => {
         // handle the error from the server

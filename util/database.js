@@ -1,3 +1,5 @@
+const express = require('express')
+
 // Import mysql2 module so that we can talk to the database
 const mysql = require("mysql2");
 
@@ -6,10 +8,10 @@ const con = mysql.createConnection({
   host: 'localhost',
   user: 'root',
   password: 'password',
-  database: 'new_books'  //This is the provided sample database, just renamed
+  database: 'new_books' //This is the provided sample database, just renamed
 });
 
-con.connect(function(err) {
+con.connect(function (err) {
   if (err) {
     return console.error('error:' + err.message);
   }
@@ -32,19 +34,19 @@ const query = (sql, parameters) => {
 }
 
 
+
+
+con.connect(function (err) {
+  if (err) throw err;
+  console.log("Connected!");
+
+
+});
 // export the new query function so that the models can use it
 module.exports = {
   query
 }
 exports.connection = con
-
-con.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected!");
-  
-  
-  });
-
 /*
 // integrate MySQL database 
 const Sequelize = require('sequelize');

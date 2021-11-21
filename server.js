@@ -1,10 +1,12 @@
+// Determine whether we are in production or development
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 };
-
+// Enable Express and define Express as a const of "server"
 const express = require("express");
 const server = express();
-//const port = 3000;
+
+
 const session = require("express-session");
 const expressLayouts = require('express-ejs-layouts');
 const bodyParser = require('body-parser');
@@ -14,13 +16,12 @@ const methodOverride = require('method-override');
 server.use(methodOverride('_method'));
 server.use(express.static('public'));
 
-// allow server to use .ejs files so we can do <%=   %> tags to not have to repeat code everywhere
+// Define the view engine to us Express Layouts and to read .ejs files
 server.set('view engine', 'ejs');
 server.set('views', __dirname + '/views');
 // put all common html elements in the one file "layouts" to be added to other pages
 server.set('layout', 'layouts/layout');
 server.use(expressLayouts);
-
 
 // integrate database    This mongodb is setup for books and authors, see /util/database for sql users setup
 const mongoose = require('mongoose');
@@ -30,6 +31,11 @@ mongoose.connect(process.env.DATABASE_URL, {
 const db = mongoose.connection;
 db.on('error', error => console.error(error));
 db.once('open', () => console.log('Connected to Mongoose'));
+
+// Enable error pages 
+//server.use((req, res) => {
+//  res.status(404).render('404');
+//});
 
 // host application locally for testing purposes, type in browser localhost:3000 to access
 server.listen(process.env.PORT || 3000);
@@ -97,6 +103,7 @@ server.use("/api", userController)
 server.use('/', indexRouter)
 server.use('/authors', authorRouter)
 server.use('/books', bookRouter)
+
 //server.use('/users', userController)
 
 // Link up the author controller
