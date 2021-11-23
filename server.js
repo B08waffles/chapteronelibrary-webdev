@@ -3,26 +3,27 @@ if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config()
 };
 // Enable Express and define Express as a const of "server"
-const express = require("express");
-const server = express();
-
+const express = require("express"); // runs express on node, alternative is hapi 
+const server = express(); //define express as 'server'
+const bcrypt = require('bcrypt') //password hashing package
 
 const session = require("express-session");
-const expressLayouts = require('express-ejs-layouts');
+const expressLayouts = require('express-ejs-layouts'); //define our view engine as ejs
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const passport = require('passport');
-const flash = require('express-flash');
-const expressValidator = require('express-validator');
-//onst cookieParser = require('cookie-parser');
+
+const flash = require('express-flash'); //flash is for error messages
+
+//const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const path = require('path');
 
 // enable form method overides
 server.use(methodOverride('_method'));
-server.use(express.static('public'));
+server.use(express.static('public')); //define 'public' as an accessable folder
 
-server.use(logger('dev'));
+server.use(logger('dev')); //tells us what is happening when we run a request
 
 
 // Define the view engine to us Express Layouts and to read .ejs files
@@ -65,7 +66,6 @@ server.use(session({
    // cookie: { secure: false } // Should be turned to true in production (HTTPS only)
 }))
 
-module.exports = server;
 
 /* Jaspers code, not sure about it 
 // Setup our own access control middleware

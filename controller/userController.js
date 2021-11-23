@@ -71,7 +71,8 @@ module.exports = router;
 var express = require('express');
 var router = express.Router();
 var con  = require('../util/database');
-
+const bcrypt = require("bcrypt")
+const validator = require("validator")
  
 // display user page
 router.get('/index', function(req, res, next) {      
@@ -106,22 +107,25 @@ router.post('/register', function(req, res, next) {
     let firstName = req.body.firstName;
     let lastName = req.body.lastName
     let username = req.body.username;
-    let email = req.body.email;
+    let email = req.body.email; 
+    // Hash the password before inserting into DB
+    let hashedpassword = bcrypt.hashSync(req.body.password, 10);
     let accessRights = req.body.accessRights;
     let errors = false;
+   
 
-    if(username.length === 0 || email.length === 0 ) {
+    if(username < 1 || email < 1 ) {
         errors = true;
 
         // set flash message
         req.flash('error', "Please enter name and email");
-        // render to add.ejs with flash message
+        // render to register.ejs with flash message
         res.render('users/register', {
         firstName: '',
         lastName: '',
         username: '',
         email: '',
-        password:'',
+        hashedPassword:'',
         accessRights:''
         })
     }
@@ -132,8 +136,9 @@ router.post('/register', function(req, res, next) {
         var form_data = {
             firstName: firstName,
             lastName: lastName,
-            name: username,
+            username: username,
             email: email,
+            password: hashedpassword,
             accessRights: accessRights,
         }
         
@@ -143,17 +148,18 @@ router.post('/register', function(req, res, next) {
             if (err) {
                 req.flash('error', err)
                  
-                // render to add.ejs
+                // render to register.ejs
                 res.render('users/register', {
                     firstName:form_data.firstName,
                     lastName: form_data.lastName,
                     username: form_data.username,
                     email: form_data.email,
+                    password: form_data.password,
                     accessRights:form_data.accessRights
                 })
             } else {                
                 req.flash('success', 'User successfully added');
-                res.redirect('/users');
+                res.redirect('/index');
             }
         })
     }
@@ -177,10 +183,11 @@ router.get('/edit/(:userID)', function(req, res, next) {
             // render to edit.ejs
             res.render('users/edit', {
                 title: 'Edit User', 
-                userID: rows[0].userId,
+                userID: rows[0].userID,
                 firstName: rows[0].firstName,
                 lastName: rows[0].lastName,
                 username: rows[0].username,
+                password: rows[0].password,
                 email: rows[0].email,
                 accessRights: rows[0].accessRights
             })
@@ -196,12 +203,14 @@ router.post('/edit/:userID', function(req, res, next) {
     let lastName = req.body.lastName;
     let username = req.body.userName;
     let email = req.body.email;
+    let hashedpassword = bcrypt.hashSync(req.body.password, 10);
     let accessRights = req.body.accessRights;
     let errors = false;
 
     if(username.length === 0 || email.length === 0 ) {
         errors = true;
-        
+        // Only allow valid emails
+    
         // set flash message
         req.flash('error', "Please enter name and email");
         // render to add.ejs with flash message
@@ -210,12 +219,12 @@ router.post('/edit/:userID', function(req, res, next) {
             firstName: req.params.firstName,
             lastName: req.params.lastName,
             lastName: req.params.lastName,
-            username: username,
+            username: req.params.username,
             email: req.params.email,
             accessRights: req.params.accessRights
         })
     }
-
+   
     // if no error
     if( !errors ) {   
  
@@ -224,6 +233,7 @@ router.post('/edit/:userID', function(req, res, next) {
             lastName: lastName,
             username: username,
             email: email,
+            password: hashedpassword,
             accessRights: accessRights
         }
         // update query

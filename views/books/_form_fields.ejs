@@ -1,6 +1,6 @@
 <div>
     <label>Title</label>
-    <input type="text" name="title" value="<%= book.title %>">
+    <input type="text" name="title" value="<%= book.title %>" pattern="[A-Za-z]" required title="Must contain only lowercase and uppercase letters">
 </div>
 <div>
     <label>Author</label>
@@ -21,7 +21,7 @@
 </div>
 <div>
     <label>Copies Sold</label>
-    <input type="number" name="copiesSold" min="1" value="<%= book.copiesSold %>">
+    <input type="number" name="copiesSold" min="1" max="9999999999999999999999999" pattern="[0-9]" value="<%= book.copiesSold %>" title="Must be more than 1 and in numerical form">
 </div>
 <div>
     <label>Cover</label>
@@ -29,5 +29,5 @@
 </div>
 <div>
     <label>Description</label>
-    <textarea name="description"><%= book.description %></textarea>
+    <textarea name="description" pattern="[A-Za-z]" title="Must contain only lowercase and uppercase letters"><%= book.description %></textarea>
 </div>
