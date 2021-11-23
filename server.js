@@ -11,10 +11,19 @@ const session = require("express-session");
 const expressLayouts = require('express-ejs-layouts');
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
+const passport = require('passport');
+const flash = require('express-flash');
+const expressValidator = require('express-validator');
+//onst cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const path = require('path');
 
 // enable form method overides
 server.use(methodOverride('_method'));
 server.use(express.static('public'));
+
+server.use(logger('dev'));
+
 
 // Define the view engine to us Express Layouts and to read .ejs files
 server.set('view engine', 'ejs');
@@ -41,17 +50,24 @@ db.once('open', () => console.log('Connected to Mongoose'));
 server.listen(process.env.PORT || 3000);
 
 // Enable middleware for JSON and urlencoded form data
-server.use(express.json())
-server.use(express.urlencoded({ extended: true }))
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
+//server.use(cookieParser());
+
+server.use(flash());
+//server.use(expressValidator());
 
 // Enable session middleware so that we have state
 server.use(session({
     secret: 'secret',
     resave: false,
     saveUninitialized: false,
-    cookie: { secure: false } // Should be turned to true in production (HTTPS only)
+   // cookie: { secure: false } // Should be turned to true in production (HTTPS only)
 }))
-/*
+
+module.exports = server;
+
+/* Jaspers code, not sure about it 
 // Setup our own access control middleware
 // Must happen after JSON and session middleware but before static files
 server.use((req, res, next) => {
@@ -89,17 +105,12 @@ server.use((req, res, next) => {
 // Serve static frontend resources
 server.use(express.static("views"))
 
-// Link up book controller
-//const bookController = require("./backend/controllers/bookController")
-//server.use("/api", bookController)
-
-// Link up the user controller
-const userController = require("./routes/userController")
 // define the routes/controller paths
-const indexRouter = require('./routes/index');
-const authorRouter = require('./routes/authors');
-const bookRouter = require('./routes/books');
-server.use("/api", userController)
+const userController = require("./controller/userController")
+const indexRouter = require('./controller/index');
+const authorRouter = require('./controller/authors');
+const bookRouter = require('./controller/books');
+server.use("/users", userController)
 server.use('/', indexRouter)
 server.use('/authors', authorRouter)
 server.use('/books', bookRouter)
