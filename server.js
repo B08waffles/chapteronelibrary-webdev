@@ -6,7 +6,9 @@ if (process.env.NODE_ENV !== 'production') {
 const express = require("express"); // runs express on node, alternative is hapi 
 const server = express(); //define express as 'server'
 const bcrypt = require('bcrypt') //password hashing package
-
+/*const { body, validationResult } = require('express-validator');
+const cookieSession = require('cookie-session'); */
+const validator = require('express-validator')
 const session = require("express-session");
 const expressLayouts = require('express-ejs-layouts'); //define our view engine as ejs
 const bodyParser = require('body-parser');
@@ -25,6 +27,13 @@ server.use(express.static('public')); //define 'public' as an accessable folder
 
 server.use(logger('dev')); //tells us what is happening when we run a request
 
+server.use(session({
+  secret: 'secret phrase abc123',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { maxAge: 1000 * 60 * 60, // 1 hour
+		sameSite: true } // Should be turned to true in production (HTTPS only)
+}))
 
 // Define the view engine to us Express Layouts and to read .ejs files
 server.set('view engine', 'ejs');
@@ -58,14 +67,41 @@ server.use(express.urlencoded({ extended: true }));
 server.use(flash());
 //server.use(expressValidator());
 
-// Enable session middleware so that we have state
-server.use(session({
-    secret: 'secret',
-    resave: false,
-    saveUninitialized: false,
-   // cookie: { secure: false } // Should be turned to true in production (HTTPS only)
-}))
 
+// User is not authenticated
+function isNotAuth (request, response, next) {
+  if (request.session.isAuth) {
+    next();
+  } else {
+    response.status(401).render('401');
+  }
+};
+
+// User is authenticated
+function isAuth (request, response, next) {
+  if (request.session.isAuth) {
+    response.redirect('/');
+  } else {
+    next();
+  }
+};
+
+// Current user 
+function currentUser (request, response, next) {
+  if (request.session.userID) {
+    response.locals.userID = request.session.userID;
+    next();
+  } else {
+    response.locals.userID = null;
+    next();
+  }
+};
+
+module.exports =
+  isNotAuth,
+  isAuth,
+  currentUser
+;
 
 /* Jaspers code, not sure about it 
 // Setup our own access control middleware

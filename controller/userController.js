@@ -70,68 +70,132 @@ module.exports = router;
 
 var express = require('express');
 var router = express.Router();
-var con  = require('../util/database');
-const bcrypt = require("bcrypt")
-const validator = require("validator")
- 
+var con = require('../util/database');
+const bcrypt = require("bcrypt");
+const userModel = require('../models/userModel')
+
+// display login user page
+router.get('/login', function (req, res, next) {
+    // render to login.ejs
+    res.render('users/login', {
+        username: '',
+        password: ''
+   })
+})
+
+
+router.post("/login", (req, res) => {
+    let login = req.body
+
+    userModel.getUserByUsername(login.username)
+        .then((results) => {
+            if (results.length > 0) {
+                // We found a user with that username,
+                // next we check their password.
+                let user = results[0]
+
+                // Check if the login password matches the users password hash
+                if (bcrypt.compareSync(login.password, user.password)) {
+                    // setup session information
+                    req.session.user = {
+                        
+                       
+                        userID: user.userID,
+                        accessRights: user.accessRights,
+                    }
+
+                    // let the client know login was successful
+                    console.log("login successful")
+                    res.redirect('/')
+                } else {
+                    // let teh client know login failed
+                    console.log("login failed - User credentials are not valid")
+                    res.render('login', { username, password })
+                }
+            } else {
+                // No user found with that username
+                console.log("that user doesn't exist!")
+                res.render('login', { username, password })
+            }
+        })
+        .catch((error) => {
+            console.log("failed to get user - query error")
+        })
+})
+
+router.post("/users/logout", (req, res) => {
+    req.session.destroy((error) => {
+        if (error) throw error;
+        console.log('User logout.');
+        res.redirect('/users/login');
+      });
+    });
+
+
+
+
 // display user page
-router.get('/index', function(req, res, next) {      
-    con.query('SELECT * FROM users ORDER BY userID desc',function(err,rows)     {
-        if(err) {
+router.get('/index', function (req, res, next) {
+    con.query('SELECT * FROM users ORDER BY userID desc', function (err, rows) {
+        if (err) {
             req.flash('error', err);
             // render to views/users/index.ejs
-            res.render('users/index',{data:''});   
+            res.render('users/index', {
+                data: ''
+            });
         } else {
             // render to views/users/index.ejs
-            res.render('users/index',{data:rows});
+            res.render('users/index', {
+                data: rows
+            });
         }
     });
 });
 
 // display add user page
-router.get('/register', function(req, res, next) {    
+router.get('/register', function (req, res, next) {
     // render to add.ejs
     res.render('users/register', {
         firstName: '',
         lastName: '',
         username: '',
         email: '',
-        password:'',
-        accessRights:''
+        password: '',
+        accessRights: ''
     })
 })
 
 // add a new user
-router.post('/register', function(req, res, next) {    
+router.post('/register', function (req, res, next) {
 
     let firstName = req.body.firstName;
     let lastName = req.body.lastName
     let username = req.body.username;
-    let email = req.body.email; 
+    let email = req.body.email;
     // Hash the password before inserting into DB
     let hashedpassword = bcrypt.hashSync(req.body.password, 10);
     let accessRights = req.body.accessRights;
     let errors = false;
-   
 
-    if(username < 1 || email < 1 ) {
+
+    if (username < 1 || email < 1) {
         errors = true;
 
         // set flash message
         req.flash('error', "Please enter name and email");
         // render to register.ejs with flash message
         res.render('users/register', {
-        firstName: '',
-        lastName: '',
-        username: '',
-        email: '',
-        hashedPassword:'',
-        accessRights:''
+            firstName: '',
+            lastName: '',
+            username: '',
+            email: '',
+            hashedPassword: '',
+            accessRights: ''
         })
     }
 
     // if no error
-    if(!errors) {
+    if (!errors) {
 
         var form_data = {
             firstName: firstName,
@@ -141,23 +205,23 @@ router.post('/register', function(req, res, next) {
             password: hashedpassword,
             accessRights: accessRights,
         }
-        
+
         // insert query
-        con.query('INSERT INTO users SET ?', form_data, function(err, result) {
+        con.query('INSERT INTO users SET ?', form_data, function (err, result) {
             //if(err) throw err
             if (err) {
                 req.flash('error', err)
-                 
+
                 // render to register.ejs
                 res.render('users/register', {
-                    firstName:form_data.firstName,
+                    firstName: form_data.firstName,
                     lastName: form_data.lastName,
                     username: form_data.username,
                     email: form_data.email,
                     password: form_data.password,
-                    accessRights:form_data.accessRights
+                    accessRights: form_data.accessRights
                 })
-            } else {                
+            } else {
                 req.flash('success', 'User successfully added');
                 res.redirect('/index');
             }
@@ -166,23 +230,23 @@ router.post('/register', function(req, res, next) {
 })
 
 // display edit user page
-router.get('/edit/(:userID)', function(req, res, next) {
+router.get('/edit/(:userID)', function (req, res, next) {
 
     let userID = req.params.userID;
-   
-    con.query('SELECT * FROM users WHERE userId = ' + userID, function(err, rows, fields) {
-        if(err) throw err
-         
+
+    con.query('SELECT * FROM users WHERE userId = ' + userID, function (err, rows, fields) {
+        if (err) throw err
+
         // if user not found
         if (rows.length <= 0) {
-            req.flash('error', 'User not found with id = ' + userID )
+            req.flash('error', 'User not found with id = ' + userID)
             res.redirect('/users')
         }
         // if user found
         else {
             // render to edit.ejs
             res.render('users/edit', {
-                title: 'Edit User', 
+                title: 'Edit User',
                 userID: rows[0].userID,
                 firstName: rows[0].firstName,
                 lastName: rows[0].lastName,
@@ -196,7 +260,7 @@ router.get('/edit/(:userID)', function(req, res, next) {
 })
 
 // update user data
-router.post('/edit/:userID', function(req, res, next) {
+router.post('/edit/:userID', function (req, res, next) {
 
     let userID = req.params.userID;
     let firstName = req.body.firstName;
@@ -207,10 +271,10 @@ router.post('/edit/:userID', function(req, res, next) {
     let accessRights = req.body.accessRights;
     let errors = false;
 
-    if(username.length === 0 || email.length === 0 ) {
+    if (username.length === 0 || email.length === 0) {
         errors = true;
         // Only allow valid emails
-    
+
         // set flash message
         req.flash('error', "Please enter name and email");
         // render to add.ejs with flash message
@@ -224,10 +288,10 @@ router.post('/edit/:userID', function(req, res, next) {
             accessRights: req.params.accessRights
         })
     }
-   
+
     // if no error
-    if( !errors ) {   
- 
+    if (!errors) {
+
         var form_data = {
             firstName: firstName,
             lastName: lastName,
@@ -237,7 +301,7 @@ router.post('/edit/:userID', function(req, res, next) {
             accessRights: accessRights
         }
         // update query
-        con.query('UPDATE users SET ? WHERE userId = ' + userID, form_data, function(err, result) {
+        con.query('UPDATE users SET ? WHERE userId = ' + userID, form_data, function (err, result) {
             //if(err) throw err
             if (err) {
                 // set flash message
@@ -258,13 +322,13 @@ router.post('/edit/:userID', function(req, res, next) {
         })
     }
 })
-   
+
 // delete user
-router.get('/delete/(:userID)', function(req, res, next) {
+router.get('/delete/(:userID)', function (req, res, next) {
 
     let userID = req.params.userID;
-     
-    con.query('DELETE FROM users WHERE userID = ' + userID, function(err, result) {
+
+    con.query('DELETE FROM users WHERE userID = ' + userID, function (err, result) {
         //if(err) throw err
         if (err) {
             // set flash message

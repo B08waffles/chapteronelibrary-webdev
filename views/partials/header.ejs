@@ -13,9 +13,20 @@
         <li><a href="/books/new">Add Book</a></li>
         <li><a href="/users/index">User list</a></li>
         <li><a href="/users/register">Create an account</a></li>
-        <li><a href="/users/edit">update user</a></li>
-        <li><a href="/delete_user">delete user</a></li>
-        <li><a href="/logout">logout</a></li>
+        <% if (typeof userID != "undefined" && userID) { %>
+            <li class="nav-item">
+              <a class="nav-link"><%= userID %></a>
+            </li>
+            <li class="nav-item">
+              <form action="/users/logout" method="post">
+                <button class="nav-link nav-button">Logout</button>
+              </form>
+            </li>
+          <% } else { %>
+          <li class="nav-item">
+            <a class="nav-link" href="/users/login">Login</a>
+          </li>
+          <% } %>
     </ul>
 </nav>
 </header>

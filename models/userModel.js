@@ -18,6 +18,10 @@ module.exports.getUserById = (userId) => {
 
 module.exports.getUserByUsername = (username) => {
     return con.query("SELECT * FROM users WHERE username = ?", [username])
+}
+
+module.exports.getUserByEmail = (email) => {
+    return con.query("SELECT * FROM users WHERE email = ?", [email])
 
 }
 
