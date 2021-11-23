@@ -75,7 +75,7 @@ var con  = require('../util/database');
  
 // display user page
 router.get('/index', function(req, res, next) {      
-    con.query('SELECT * FROM users ORDER BY userId desc',function(err,rows)     {
+    con.query('SELECT * FROM users ORDER BY userID desc',function(err,rows)     {
         if(err) {
             req.flash('error', err);
             // render to views/users/index.ejs
@@ -88,7 +88,7 @@ router.get('/index', function(req, res, next) {
 });
 
 // display add user page
-router.get('/regiser', function(req, res, next) {    
+router.get('/register', function(req, res, next) {    
     // render to add.ejs
     res.render('users/register', {
         firstName: '',
@@ -160,16 +160,16 @@ router.post('/register', function(req, res, next) {
 })
 
 // display edit user page
-router.get('/edit/(:id)', function(req, res, next) {
+router.get('/edit/(:userID)', function(req, res, next) {
 
-    let userId = req.params.userId;
+    let userID = req.params.userID;
    
-    con.query('SELECT * FROM users WHERE userId = ' + userId, function(err, rows, fields) {
+    con.query('SELECT * FROM users WHERE userId = ' + userID, function(err, rows, fields) {
         if(err) throw err
          
         // if user not found
         if (rows.length <= 0) {
-            req.flash('error', 'User not found with id = ' + userId )
+            req.flash('error', 'User not found with id = ' + userID )
             res.redirect('/users')
         }
         // if user found
@@ -177,7 +177,7 @@ router.get('/edit/(:id)', function(req, res, next) {
             // render to edit.ejs
             res.render('users/edit', {
                 title: 'Edit User', 
-                userId: rows[0].userId,
+                userID: rows[0].userId,
                 firstName: rows[0].firstName,
                 lastName: rows[0].lastName,
                 username: rows[0].username,
@@ -189,9 +189,9 @@ router.get('/edit/(:id)', function(req, res, next) {
 })
 
 // update user data
-router.post('/edit/:id', function(req, res, next) {
+router.post('/edit/:userID', function(req, res, next) {
 
-    let userId = req.params.userId;
+    let userID = req.params.userID;
     let firstName = req.body.firstName;
     let lastName = req.body.lastName;
     let username = req.body.userName;
@@ -206,7 +206,7 @@ router.post('/edit/:id', function(req, res, next) {
         req.flash('error', "Please enter name and email");
         // render to add.ejs with flash message
         res.render('users/edit', {
-            userId: req.params.userId,
+            userID: req.params.userID,
             firstName: req.params.firstName,
             lastName: req.params.lastName,
             lastName: req.params.lastName,
@@ -227,14 +227,14 @@ router.post('/edit/:id', function(req, res, next) {
             accessRights: accessRights
         }
         // update query
-        con.query('UPDATE users SET ? WHERE userId = ' + userId, form_data, function(err, result) {
+        con.query('UPDATE users SET ? WHERE userId = ' + userID, form_data, function(err, result) {
             //if(err) throw err
             if (err) {
                 // set flash message
                 req.flash('error', err)
                 // render to edit.ejs
                 res.render('users/edit', {
-                    userId: req.params.userId,
+                    userId: req.params.userID,
                     firstName: form_data.firstName,
                     lastName: form_data.lastName,
                     username: form_data.username,
@@ -250,11 +250,11 @@ router.post('/edit/:id', function(req, res, next) {
 })
    
 // delete user
-router.get('/delete/(:id)', function(req, res, next) {
+router.get('/delete/(:userID)', function(req, res, next) {
 
-    let userId = req.params.userId;
+    let userID = req.params.userID;
      
-    con.query('DELETE FROM users WHERE userId = ' + userId, function(err, result) {
+    con.query('DELETE FROM users WHERE userID = ' + userID, function(err, result) {
         //if(err) throw err
         if (err) {
             // set flash message
@@ -263,7 +263,7 @@ router.get('/delete/(:id)', function(req, res, next) {
             res.redirect('/users')
         } else {
             // set flash message
-            req.flash('success', 'User successfully deleted! ID = ' + id)
+            req.flash('success', 'User successfully deleted! ID = ' + userID)
             // redirect to user page
             res.redirect('/users')
         }

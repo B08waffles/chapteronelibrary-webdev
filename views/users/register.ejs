@@ -1,27 +1,36 @@
-<h1>Register</h1>
-<form action="/register" method="POST">
-  <div>
-    <label for="firstName">First Name:</label>
-    <input type="text" id="firstName" name="firstName" required>
-  </div>
-  <div>
-    <label for="lastName">Last Name:</label>
-    <input type="text" id="lastName" name="lastName" required>
-  </div> <div>
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-  </div>
-  <div>
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
-  </div>
-  <div>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-  </div>
-  <div>
-    <label for="accessRights">Access Rights: (write admin or staff with no capitals, leave blank for user)</label>
-    <input type="text" id="accessRights" name="accessRights">
-  </div>
-  <button type="submit">Register</button>
-</form>
+<% if (messages.error) { %>
+	<div class="alert alert-danger" role="alert"><%- messages.error %></div>
+	<% } %>
+    <div class="card"> 
+    	<div class="card-header">
+			Add Users
+		</div>
+        <div class="card-body">
+            <form action="/users/register" method="post">
+                <div class="form-group">
+                    <label>firstName:</label>
+                    <input type="text" class="form-control" name="firstName" value="<%= firstName %>" autocomplete="off">
+                </div>
+                <div class="form-group">
+                  <label>lastName:</label>
+                  <input type="text" class="form-control" name="lastName" value="<%= lastName %>" autocomplete="off">
+              </div>
+              <div class="form-group">
+                <label>userame:</label>
+                <input type="text" class="form-control" name="userame" value="<%= username %>" autocomplete="off">
+            </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="text" class="form-control" name="email" value="<%= email %>" autocomplete="off">
+                </div>
+				<div class="form-group">
+                    <label>accessRights:</label>
+                    <input type="text" class="form-control" name="accessRights" value="<%= accessRights %>" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-info" value="Add"/>
+                </div>
+            </form>
+        </div>
+    </div>
+

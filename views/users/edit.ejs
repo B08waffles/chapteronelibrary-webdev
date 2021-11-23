@@ -1,0 +1,36 @@
+<% if (messages.error) { %>
+<div class="alert alert-danger" role="alert"><%- messages.error %></div>
+<% } %>
+<div class="card">
+    <div class="card-header">
+        Edit User
+    </div>
+    <div class="card-body">
+        <form action="/users/edit/<%= userID %>" method="post">
+            <div class="form-group">
+                <label>firstName:</label>
+                <input type="text" class="form-control" name="firstName" value="<%= firstName %>" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label>lastName:</label>
+                    <input type="text" class="form-control" name="lastName" value="<%= lastName %>" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>userame:</label>
+                    <input type="text" class="form-control" name="username" value="<%= username %>" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>Email:</label>
+                    <input type="text" class="form-control" name="email" value="<%= email %>" autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label>accessRights (write either admin or staff in lowercase):</label>
+                    <input type="text" class="form-control" name="accessRights" value="<%= accessRights %>"
+                        autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <input type="submit" class="btn btn-info" value="Update" />
+                </div>
+        </form>
+    </div>
+</div>

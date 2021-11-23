@@ -23,6 +23,8 @@
       <thead>
         <tr>
           <th scope="col">#</th>
+          <th scope="col">firstName</th>
+          <th scope="col">lastName</th>
           <th scope="col">username</th>
           <th scope="col">Email</th>
           <th scope="col">accessRights</th>
@@ -33,13 +35,15 @@
         <% for(var i = 0; i< data.length; i++) { %>
         <tr>
           <th scope="row"><%= (i+1) %></th>
+          <td><%= data[i].firstName%></td>
+          <td><%= data[i].lastName%></td>
           <td><%= data[i].username%></td>
           <td><%= data[i].email%></td>
           <td><%= data[i].accessRights%></td>
           <td>
-            <a class="btn btn-success edit" href="/users/edit/<%=data[i].userId%>">Edit</a>
+            <a class="btn btn-success edit" href="/users/edit/<%=data[i].userID%> ">Edit</a>
             <a class="btn btn-danger delete" onclick="return alert('Are you sure want to delete this record?')"
-              href="../users/delete/<%=data[i].userId%>">Delete</a>
+              href="../users/delete/<%=data[i].userID%>">Delete</a>
           </td>
         </tr>
         <% } %>
