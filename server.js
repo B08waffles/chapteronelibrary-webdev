@@ -9,15 +9,24 @@ const bcrypt = require('bcrypt') //password hashing package
 /*const { body, validationResult } = require('express-validator');
 const cookieSession = require('cookie-session'); */
 const validator = require('express-validator')
+const cookieParser = require('cookie-parser');
 const session = require("express-session");
 const expressLayouts = require('express-ejs-layouts'); //define our view engine as ejs
 const bodyParser = require('body-parser');
 const methodOverride = require('method-override');
 const passport = require('passport');
+server.use(cookieParser());
 
 const flash = require('express-flash'); //flash is for error messages
+// integrate database    This mongodb is setup for books and authors, see /util/database for sql users setup
+const mongoose = require('mongoose');
+mongoose.connect(process.env.DATABASE_URL, {
+  useNewUrlParser: true
+});
+const db = mongoose.connection;
+db.on('error', error => console.error(error));
+db.once('open', () => console.log('Connected to Mongoose'));
 
-//const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const path = require('path');
 
@@ -29,10 +38,14 @@ server.use(logger('dev')); //tells us what is happening when we run a request
 
 server.use(session({
   secret: 'secret phrase abc123',
-  resave: false,
+  resave: true,
   saveUninitialized: false,
-  cookie: { secure: false, maxAge: 1000 * 60 * 60, // 1 hour
-		sameSite: true }
+  cookie: {
+    secure: false,
+    maxAge: 1000 * 60 * 60, // 1 hour
+    sameSite: true
+  },
+
 }))
 
 // Define the view engine to us Express Layouts and to read .ejs files
@@ -42,14 +55,7 @@ server.set('views', __dirname + '/views');
 server.set('layout', 'layouts/layout');
 server.use(expressLayouts);
 
-// integrate database    This mongodb is setup for books and authors, see /util/database for sql users setup
-const mongoose = require('mongoose');
-mongoose.connect(process.env.DATABASE_URL, {
-  useNewUrlParser: true
-});
-const db = mongoose.connection;
-db.on('error', error => console.error(error));
-db.once('open', () => console.log('Connected to Mongoose'));
+
 
 // Enable error pages 
 //server.use((req, res) => {
@@ -61,7 +67,9 @@ server.listen(process.env.PORT || 3000);
 
 // Enable middleware for JSON and urlencoded form data
 server.use(express.json());
-server.use(express.urlencoded({ extended: true }));
+server.use(express.urlencoded({
+  extended: true
+}));
 //server.use(cookieParser());
 
 server.use(flash());
@@ -69,7 +77,7 @@ server.use(flash());
 
 
 // User is not authenticated
-function isNotAuth (request, response, next) {
+function isNotAuth(request, response, next) {
   if (request.session.isAuth) {
     next();
   } else {
@@ -78,7 +86,7 @@ function isNotAuth (request, response, next) {
 };
 
 // User is authenticated
-function isAuth (request, response, next) {
+function isAuth(request, response, next) {
   if (request.session.isAuth) {
     response.redirect('/');
   } else {
@@ -87,7 +95,7 @@ function isAuth (request, response, next) {
 };
 
 // Current user 
-function currentUser (request, response, next) {
+function currentUser(request, response, next) {
   if (request.session.userID) {
     response.locals.userID = request.session.userID;
     next();
@@ -100,44 +108,40 @@ function currentUser (request, response, next) {
 module.exports =
   isNotAuth,
   isAuth,
-  currentUser
-;
+  currentUser;
 
-/* Jaspers code, not sure about it 
+// Jaspers code, not sure about it 
 // Setup our own access control middleware
 // Must happen after JSON and session middleware but before static files
 server.use((req, res, next) => {
-    // The user is logged in if they have session data
-    let userLoggedIn = req.session.user != null
+  // The user is logged in if they have session data
+  let userLoggedIn = req.session.user != null
 
-    // URLs we will allow for non logged in clients (guests)
-    let guestAllowedURLs = [
-        "/login.ejs",
-        "/layout/layout.ejs",
-        "/js/login.js",
-        "/partials/header.ejs",
-        "/public/styles/main.css",
-        "/api/users/login",
-        
-    ]
-
-
-    if (userLoggedIn) {
-        // Allow the request through
-        next()
+  // URLs we will allow for non logged in clients (guests)
+  let guestAllowedURLs = [
+    "/users/login",
+    "/layout/layout.ejs",
+    "/partials/errorMessage",
+    "/partials/header.ejs",
+    "/public/styles/main.css",
+  ]
+  if (userLoggedIn) {
+    // Allow the request through
+    next()
+  } else {
+    // Check that the guest page is only
+    // asking for an allowed resource
+    if (guestAllowedURLs.includes(req.originalUrl)) {
+      // Allow the guest user through
+      next()
     } else {
-        // Check that the guest page is only
-        // asking for an allowed resource
-        if (guestAllowedURLs.includes(req.originalUrl)) {
-            // Allow the guest user through
-            next()
-        } else {
-            // Redirect them to the login page
-            res.redirect("/login.ejs")
-        }
+      // Redirect them to the login page
+      res.redirect("/users/login")
     }
+  }
 });
-*/
+
+
 // Serve static frontend resources
 server.use(express.static("views"))
 
@@ -146,10 +150,14 @@ const userController = require("./controller/userController")
 const indexRouter = require('./controller/index');
 const authorRouter = require('./controller/authors');
 const bookRouter = require('./controller/books');
+const errorRouter = require('./controller/errorController')
 server.use("/users", userController)
 server.use('/', indexRouter)
 server.use('/authors', authorRouter)
 server.use('/books', bookRouter)
+server.use('/error', errorRouter)
+
+
 
 //server.use('/users', userController)
 
@@ -246,7 +254,8 @@ app.get(bookRouter, checkAuthenticated, (req, res) => {
     name: req.user.username
   })
 });
-*/ /*
+*/
+/*
 app.use(express.urlencoded({
   extended: false
 }));

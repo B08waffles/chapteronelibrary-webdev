@@ -67,7 +67,7 @@ router.get('/logout', function (req, res) {
 module.exports = router;
 
 */
-
+const flash = require('express-flash')
 var express = require('express');
 var router = express.Router();
 var con = require('../util/database');
@@ -136,10 +136,11 @@ router.post("/login", (req, res) => {
                     req.session.user = {
                         userID: user.userID,
                         accessRights: user.accessRights,
+                        username: user.username,
                     }
 
                     // let the client know login was successful
-                    console.log("login successful")
+                    console.log(req.session.user,   "login successful")
                     res.redirect('/')
                 } else {
                     // let teh client know login failed
@@ -163,7 +164,7 @@ router.post("/login", (req, res) => {
         })
 })
 
-router.post("/users/logout", (req, res) => {
+router.post("/logout", (req, res) => {
     req.session.destroy((error) => {
         if (error) throw error;
         console.log('User logout.');
@@ -176,6 +177,10 @@ router.post("/users/logout", (req, res) => {
 
 // display user page
 router.get('/index', function (req, res, next) {
+    if (req.session.user.accessRights != "admin") {
+        res.status(403).json('Status 403, You are not authorised to use this page, please go back')
+        return;
+    } else {
     con.query('SELECT * FROM users ORDER BY userID desc', function (err, rows) {
         if (err) {
             req.flash('error', err);
@@ -187,13 +192,17 @@ router.get('/index', function (req, res, next) {
             // render to views/users/index.ejs
             res.render('users/index', {
                 data: rows
-            });
+        });
         }
     });
-});
+}});
 
 // display add user page
 router.get('/register', function (req, res, next) {
+    if (req.session.user.accessRights != "admin") {
+        res.status(403).json('Status 403, You are not authorised to use this page, please go back')
+        return;
+    } else {
     // render to add.ejs
     res.render('users/register', {
         firstName: '',
@@ -203,11 +212,14 @@ router.get('/register', function (req, res, next) {
         password: '',
         accessRights: ''
     })
-})
+}})
 
 // add a new user
 router.post('/register', function (req, res, next) {
-
+    if (req.session.user.accessRights != "admin") {
+        res.status(403).json('Status 403, You are not authorised to use this page, please go back')
+        return;
+    } else {
     let firstName = req.body.firstName;
     let lastName = req.body.lastName
     let username = req.body.username;
@@ -267,11 +279,14 @@ router.post('/register', function (req, res, next) {
             }
         })
     }
-})
+}})
 
 // display edit user page
 router.get('/edit/(:userID)', function (req, res, next) {
-
+    if (req.session.user.accessRights != "admin") {
+        res.status(403).json('Status 403, You are not authorised to use this page, please go back')
+        return;
+    } else {
     let userID = req.params.userID;
 
     con.query('SELECT * FROM users WHERE userId = ' + userID, function (err, rows, fields) {
@@ -297,11 +312,14 @@ router.get('/edit/(:userID)', function (req, res, next) {
             })
         }
     })
-})
+}})
 
 // update user data
 router.post('/edit/:userID', function (req, res, next) {
-
+    if (req.session.user.accessRights != "admin") {
+        res.status(403).json('Status 403, You are not authorised to use this page, please go back')
+        return;
+    } else {
     let userID = req.params.userID;
     let firstName = req.body.firstName;
     let lastName = req.body.lastName;
@@ -361,11 +379,14 @@ router.post('/edit/:userID', function (req, res, next) {
             }
         })
     }
-})
+}})
 
 // delete user
 router.get('/delete/(:userID)', function (req, res, next) {
-
+    if (req.session.user.accessRights != "admin") {
+        res.status(403).json('Status 403, You are not authorised to use this page, please go back')
+        return;
+    } else {
     let userID = req.params.userID;
 
     con.query('DELETE FROM users WHERE userID = ' + userID, function (err, result) {
@@ -382,7 +403,7 @@ router.get('/delete/(:userID)', function (req, res, next) {
             res.redirect('/users')
         }
     })
-})
+}})
 
 module.exports = router;
 
