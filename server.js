@@ -31,8 +31,8 @@ server.use(session({
   secret: 'secret phrase abc123',
   resave: false,
   saveUninitialized: false,
-  cookie: { maxAge: 1000 * 60 * 60, // 1 hour
-		sameSite: true } // Should be turned to true in production (HTTPS only)
+  cookie: { secure: false, maxAge: 1000 * 60 * 60, // 1 hour
+		sameSite: true }
 }))
 
 // Define the view engine to us Express Layouts and to read .ejs files

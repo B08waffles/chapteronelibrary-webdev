@@ -73,15 +73,51 @@ var router = express.Router();
 var con = require('../util/database');
 const bcrypt = require("bcrypt");
 const userModel = require('../models/userModel')
-
+const isAuth = require('../server')
 // display login user page
 router.get('/login', function (req, res, next) {
     // render to login.ejs
     res.render('users/login', {
         username: '',
         password: ''
-   })
+    })
 })
+/* Didnt work
+router.post("/login", (request, response) => {
+    // Get user inputs
+    const { username, password } = request.body;
+    // Check in database is email already exsist
+    userModel.getUserByUsername(username, (result) => {
+      if (result != undefined) {
+        // If there is already a user with that email
+        // Load hashed password and compare it with entered password
+        const dbPassword = result.password;
+        bcrypt.compare(password, dbPassword, function(err, result) {
+          if (result == true) {
+            // If passwords match
+            request.session.isAuth = true;
+            request.session.userID = userID;
+            request.session.username = username;
+            request.session.accessRights = accessRights;
+            console.log('Login successful.')
+            response.redirect('/index');
+          } else {
+            // If passwords do not match
+            const conflictError = 'User credentials are not valid.';
+            console.log(conflictError);
+            response.render('login', { username, password, conflictError });
+          }
+        });
+      } else {
+        // A user with that email address does not exists
+        const conflictError = 'User credentials are not valid.';
+        console.log(conflictError);
+        response.render('login', { username, password, conflictError });
+      };
+    });  
+  })
+*/
+
 
 
 router.post("/login", (req, res) => {
@@ -98,8 +134,6 @@ router.post("/login", (req, res) => {
                 if (bcrypt.compareSync(login.password, user.password)) {
                     // setup session information
                     req.session.user = {
-                        
-                       
                         userID: user.userID,
                         accessRights: user.accessRights,
                     }
@@ -110,12 +144,18 @@ router.post("/login", (req, res) => {
                 } else {
                     // let teh client know login failed
                     console.log("login failed - User credentials are not valid")
-                    res.render('login', { username, password })
+                    res.render('login', {
+                        username,
+                        password
+                    })
                 }
             } else {
                 // No user found with that username
                 console.log("that user doesn't exist!")
-                res.render('login', { username, password })
+                res.render('login', {
+                    username,
+                    password
+                })
             }
         })
         .catch((error) => {
@@ -128,8 +168,8 @@ router.post("/users/logout", (req, res) => {
         if (error) throw error;
         console.log('User logout.');
         res.redirect('/users/login');
-      });
     });
+});
 
 
 
