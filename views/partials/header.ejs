@@ -11,22 +11,8 @@
         <li><a href="/authors/new">Add Author</a></li>
         <li><a href="/books">Books</a></li>
         <li><a href="/books/new">Add Book</a></li>
-        <li><a href="/users/index">User list</a></li>
-        <li><a href="/users/register">Create an account</a></li>
-        <% if (typeof username != "undefined" && username) { %>
-          <li class="nav-item">
-            <a class="nav-link"><%= username %></a>
-          </li>
-          <li class="nav-item">
-            <form action="/logout" method="post">
-              <button class="nav-link nav-button">Logout</button>
-            </form>
-          </li>
-        <% } else { %>
-        <li class="nav-item">
-          <a class="nav-link" href="/users/login">Login</a>
-        </li>
-        <% } %>
+        <li><a href="/users/index">Admin Panel</a></li>
+        
         <form action="/users/logout" method="post">
           <button class="nav-link nav-button">Logout</button>
         </form>

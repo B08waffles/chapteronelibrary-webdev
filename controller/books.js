@@ -3,6 +3,7 @@ const router = express.Router()
 const Book = require('../models/book')
 const Author = require('../models/author')
 const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
+const validator = require('validator')
 
 // All Books Route
 router.get('/', async (req, res) => {
@@ -28,18 +29,20 @@ router.get('/', async (req, res) => {
 })
 
 // New Book Route
-router.get('/new', async (req, res) => {
+router.get('/new', async (req, res) => { 
   renderNewPage(res, new Book())
 })
 
 // Create Book Route
 router.post('/', async (req, res) => {
+ 
+ 
   const book = new Book({
-    title: req.body.title,
-    author: req.body.author,
+    title: validator.escape(req.body.title),
+    author: validator.escape(req.body.author),
     publishDate: new Date(req.body.publishDate),
-    copiesSold: req.body.copiesSold,
-    description: req.body.description
+    copiesSold: validator.escape(req.body.copiesSold),
+    description: validator.escape(req.body.description)
   })
   saveCover(book, req.body.cover)
 
@@ -65,6 +68,7 @@ router.get('/:id', async (req, res) => {
 
 // Edit Book Route
 router.get('/:id/edit', async (req, res) => {
+  
   try {
     const book = await Book.findById(req.params.id)
     renderEditPage(res, book)
@@ -75,15 +79,16 @@ router.get('/:id/edit', async (req, res) => {
 
 // Update Book Route
 router.put('/:id', async (req, res) => {
+
   let book
 
   try {
     book = await Book.findById(req.params.id)
-    book.title = req.body.title
-    book.author = req.body.author
+    book.title = validator.escape(req.body.title)
+    book.author = validator.escape(req.body.author)
     book.publishDate = new Date(req.body.publishDate)
-    book.copiesSold = req.body.copiesSold
-    book.description = req.body.description
+    book.copiesSold = validator.escape(req.body.copiesSold)
+    book.description = validator.escape(req.body.description)
     if (req.body.cover != null && req.body.cover !== '') {
       saveCover(book, req.body.cover)
     }
@@ -100,6 +105,7 @@ router.put('/:id', async (req, res) => {
 
 // Delete Book Page
 router.delete('/:id', async (req, res) => {
+  
   let book
   try {
     book = await Book.findById(req.params.id)

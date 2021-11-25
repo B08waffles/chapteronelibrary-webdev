@@ -124,6 +124,9 @@ server.use((req, res, next) => {
     "/partials/errorMessage",
     "/partials/header.ejs",
     "/public/styles/main.css",
+    "/books/",
+    "/authors/",
+    "/",
   ]
   if (userLoggedIn) {
     // Allow the request through

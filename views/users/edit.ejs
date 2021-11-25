@@ -10,12 +10,14 @@
             <div class="form-group">
                 <label>firstName:</label>
                 <input type="text" class="form-control" name="firstName" value="<%= firstName %>" autocomplete="off"
-                    pattern="[A-Za-z]" required title="Must contain only lowercase and uppercase letters">
+                    pattern="[A-Za-z].{2,}" required
+                    title="Must contain only lowercase and uppercase letters and be more than 2 characters long">
             </div>
             <div class="form-group">
                 <label>lastName:</label>
                 <input type="text" class="form-control" name="lastName" value="<%= lastName %>" autocomplete="off"
-                    pattern="[A-Za-z]" required title="Must contain only lowercase and uppercase letters">
+                    pattern="[A-Za-z].{2,}" required
+                    title="Must contain only lowercase and uppercase letters and be more than 2 characters long">
             </div>
             <div class="form-group">
                 <label>userame:</label>
@@ -37,7 +39,7 @@
             <div class="form-group">
                 <label>accessRights (write either admin or staff in lowercase):</label>
                 <input type="text" class="form-control" name="accessRights" value="<%= accessRights %>"
-                    autocomplete="off" required pattern="[a-z]{5}"
+                    autocomplete="off" required pattern="[a-z].{4,}"
                     title="Must be either admin or staff in lowercase, cannot be blank">
             </div>
             <div class="form-group">

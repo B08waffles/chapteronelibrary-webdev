@@ -2,7 +2,7 @@
 <form action="/books" method="GET">
     <div>
         <label>Title</label>
-        <input type="text" name="title" value="<%= searchOptions.title %>" pattern="[A-Za-z]" title="Must contain only lowercase and uppercase letters">
+        <input type="text" name="title" value="<%= searchOptions.title %>" pattern="[A-Za-z].{3,}" title="Must contain only lowercase and uppercase letters">
     </div>
     <div>
         <label>Published After</label>

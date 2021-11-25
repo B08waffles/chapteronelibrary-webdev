@@ -2,6 +2,7 @@ const express = require('express')
 const Book = require('../models/book')
 const router = express.Router()
 const Author = require('../models/author')
+const validator = require('validator')
 
 // All Authors Route 
 router.get('/', async (req, res) => {
@@ -35,7 +36,7 @@ router.get('/new', (req, res) => {
 // Create Author Route
 router.post('/', async (req, res) => {
     const author = new Author({
-        name: req.body.name
+        name: validator.escape(req.body.name)
     })
     try {
         const newAuthor = await author.save()
@@ -78,7 +79,7 @@ router.put('/:id', async (req, res) => {
     let author
     try {
         author = await Author.findById(req.params.id)
-        author.name = req.body.name
+        author.name = validator.escape(req.body.name)
         await author.save()
         res.redirect(`/authors/${author.id}`)
     } catch {

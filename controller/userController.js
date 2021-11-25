@@ -140,7 +140,7 @@ router.post("/login", (req, res) => {
                     }
 
                     // let the client know login was successful
-                    console.log(req.session.user,   "login successful")
+                    console.log(req.session.user, "login successful")
                     res.redirect('/')
                 } else {
                     // let teh client know login failed
@@ -163,7 +163,7 @@ router.post("/login", (req, res) => {
             console.log("failed to get user - query error")
         })
 })
-
+// Logout the user
 router.post("/logout", (req, res) => {
     req.session.destroy((error) => {
         if (error) throw error;
@@ -172,30 +172,28 @@ router.post("/logout", (req, res) => {
     });
 });
 
-
-
-
 // display user page
 router.get('/index', function (req, res, next) {
     if (req.session.user.accessRights != "admin") {
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
     } else {
-    con.query('SELECT * FROM users ORDER BY userID desc', function (err, rows) {
-        if (err) {
-            req.flash('error', err);
-            // render to views/users/index.ejs
-            res.render('users/index', {
-                data: ''
-            });
-        } else {
-            // render to views/users/index.ejs
-            res.render('users/index', {
-                data: rows
+        con.query('SELECT * FROM users ORDER BY userID desc', function (err, rows) {
+            if (err) {
+                req.flash('error', err);
+                // render to views/users/index.ejs
+                res.render('users/index', {
+                    data: ''
+                });
+            } else {
+                // render to views/users/index.ejs
+                res.render('users/index', {
+                    data: rows
+                });
+            }
         });
-        }
-    });
-}});
+    }
+});
 
 // display add user page
 router.get('/register', function (req, res, next) {
@@ -203,16 +201,17 @@ router.get('/register', function (req, res, next) {
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
     } else {
-    // render to add.ejs
-    res.render('users/register', {
-        firstName: '',
-        lastName: '',
-        username: '',
-        email: '',
-        password: '',
-        accessRights: ''
-    })
-}})
+        // render to add.ejs
+        res.render('users/register', {
+            firstName: '',
+            lastName: '',
+            username: '',
+            email: '',
+            password: '',
+            accessRights: ''
+        })
+    }
+})
 
 // add a new user
 router.post('/register', function (req, res, next) {
@@ -220,66 +219,67 @@ router.post('/register', function (req, res, next) {
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
     } else {
-    let firstName = req.body.firstName;
-    let lastName = req.body.lastName
-    let username = req.body.username;
-    let email = req.body.email;
-    // Hash the password before inserting into DB
-    let hashedpassword = bcrypt.hashSync(req.body.password, 10);
-    let accessRights = req.body.accessRights;
-    let errors = false;
+        let firstName = validator.escape(req.body.firstName);
+        let lastName = validator.escape(req.body.lastName);
+        let username = validator.escape(req.body.username);
+        let email = validator.escape(req.body.email);
+        // Hash the password before inserting into DB
+        let hashedpassword = bcrypt.hashSync(req.body.password, 10);
+        let accessRights = validator.escape(req.body.accessRights);
+        let errors = false;
 
 
-    if (username < 1 || email < 1) {
-        errors = true;
+        if (username < 1 || email < 1) {
+            errors = true;
 
-        // set flash message
-        req.flash('error', "Please enter name and email");
-        // render to register.ejs with flash message
-        res.render('users/register', {
-            firstName: '',
-            lastName: '',
-            username: '',
-            email: '',
-            hashedPassword: '',
-            accessRights: ''
-        })
-    }
-
-    // if no error
-    if (!errors) {
-
-        var form_data = {
-            firstName: firstName,
-            lastName: lastName,
-            username: username,
-            email: email,
-            password: hashedpassword,
-            accessRights: accessRights,
+            // set flash message
+            req.flash('error', "Please enter name and email");
+            // render to register.ejs with flash message
+            res.render('users/register', {
+                firstName: '',
+                lastName: '',
+                username: '',
+                email: '',
+                hashedPassword: '',
+                accessRights: ''
+            })
         }
 
-        // insert query
-        con.query('INSERT INTO users SET ?', form_data, function (err, result) {
-            //if(err) throw err
-            if (err) {
-                req.flash('error', err)
+        // if no error
+        if (!errors) {
 
-                // render to register.ejs
-                res.render('users/register', {
-                    firstName: form_data.firstName,
-                    lastName: form_data.lastName,
-                    username: form_data.username,
-                    email: form_data.email,
-                    password: form_data.password,
-                    accessRights: form_data.accessRights
-                })
-            } else {
-                req.flash('success', 'User successfully added');
-                res.redirect('/index');
+            var form_data = {
+                firstName: firstName,
+                lastName: lastName,
+                username: username,
+                email: email,
+                password: hashedpassword,
+                accessRights: accessRights,
             }
-        })
+
+            // insert query
+            con.query('INSERT INTO users SET ?', form_data, function (err, result) {
+                //if(err) throw err
+                if (err) {
+                    req.flash('error', err)
+
+                    // render to register.ejs
+                    res.render('users/register', {
+                        firstName: form_data.firstName,
+                        lastName: form_data.lastName,
+                        username: form_data.username,
+                        email: form_data.email,
+                        password: form_data.password,
+                        accessRights: form_data.accessRights
+                    })
+                } else {
+                    req.flash('success', 'User successfully added');
+                    res.redirect('/index');
+                }
+            })
+        }
     }
-}})
+})
 
 // display edit user page
 router.get('/edit/(:userID)', function (req, res, next) {
@@ -287,32 +287,33 @@ router.get('/edit/(:userID)', function (req, res, next) {
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
     } else {
-    let userID = req.params.userID;
+        let userID = req.params.userID;
 
-    con.query('SELECT * FROM users WHERE userId = ' + userID, function (err, rows, fields) {
-        if (err) throw err
+        con.query('SELECT * FROM users WHERE userId = ' + userID, function (err, rows, fields) {
+            if (err) throw err
 
-        // if user not found
-        if (rows.length <= 0) {
-            req.flash('error', 'User not found with id = ' + userID)
-            res.redirect('/users')
-        }
-        // if user found
-        else {
-            // render to edit.ejs
-            res.render('users/edit', {
-                title: 'Edit User',
-                userID: rows[0].userID,
-                firstName: rows[0].firstName,
-                lastName: rows[0].lastName,
-                username: rows[0].username,
-                password: rows[0].password,
-                email: rows[0].email,
-                accessRights: rows[0].accessRights
-            })
-        }
-    })
-}})
+            // if user not found
+            if (rows.length <= 0) {
+                req.flash('error', 'User not found with id = ' + userID)
+                res.redirect('/users')
+            }
+            // if user found
+            else {
+                // render to edit.ejs
+                res.render('users/edit', {
+                    title: 'Edit User',
+                    userID: rows[0].userID,
+                    firstName: rows[0].firstName,
+                    lastName: rows[0].lastName,
+                    username: rows[0].username,
+                    password: rows[0].password,
+                    email: rows[0].email,
+                    accessRights: rows[0].accessRights
+                })
+            }
+        })
+    }
+})
 
 // update user data
 router.post('/edit/:userID', function (req, res, next) {
@@ -320,66 +321,67 @@ router.post('/edit/:userID', function (req, res, next) {
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
     } else {
-    let userID = req.params.userID;
-    let firstName = req.body.firstName;
-    let lastName = req.body.lastName;
-    let username = req.body.userName;
-    let email = req.body.email;
-    let hashedpassword = bcrypt.hashSync(req.body.password, 10);
-    let accessRights = req.body.accessRights;
-    let errors = false;
+        let userID = validator.escape(req.params.userID);
+        let firstName = validator.escape(req.body.firstName);
+        let lastName = validator.escape(req.body.lastName);
+        let username = validator.escape(req.body.userName);
+        let email = validator.escape(req.body.email);
+        let hashedpassword = bcrypt.hashSync(req.body.password, 10);
+        let accessRights = validator.escape(req.body.accessRights);
+        let errors = false;
 
-    if (username.length === 0 || email.length === 0) {
-        errors = true;
-        // Only allow valid emails
+        if (username.length === 0 || email.length === 0) {
+            errors = true;
+            // Only allow valid emails
 
-        // set flash message
-        req.flash('error', "Please enter name and email");
-        // render to add.ejs with flash message
-        res.render('users/edit', {
-            userID: req.params.userID,
-            firstName: req.params.firstName,
-            lastName: req.params.lastName,
-            lastName: req.params.lastName,
-            username: req.params.username,
-            email: req.params.email,
-            accessRights: req.params.accessRights
-        })
-    }
-
-    // if no error
-    if (!errors) {
-
-        var form_data = {
-            firstName: firstName,
-            lastName: lastName,
-            username: username,
-            email: email,
-            password: hashedpassword,
-            accessRights: accessRights
+            // set flash message
+            req.flash('error', "Please enter name and email");
+            // render to add.ejs with flash message
+            res.render('users/edit', {
+                userID: req.params.userID,
+                firstName: req.params.firstName,
+                lastName: req.params.lastName,
+                lastName: req.params.lastName,
+                username: req.params.username,
+                email: req.params.email,
+                accessRights: req.params.accessRights
+            })
         }
-        // update query
-        con.query('UPDATE users SET ? WHERE userId = ' + userID, form_data, function (err, result) {
-            //if(err) throw err
-            if (err) {
-                // set flash message
-                req.flash('error', err)
-                // render to edit.ejs
-                res.render('users/edit', {
-                    userId: req.params.userID,
-                    firstName: form_data.firstName,
-                    lastName: form_data.lastName,
-                    username: form_data.username,
-                    email: form_data.email,
-                    position: form_data.position
-                })
-            } else {
-                req.flash('success', 'User successfully updated');
-                res.redirect('/users');
+
+        // if no error
+        if (!errors) {
+
+            var form_data = {
+                firstName: validator.escape(firstName),
+                lastName: validator.escape(lastName),
+                username: validator.escape(username),
+                email: validator.escape(email),
+                password: hashedpassword,
+                accessRights: validator.escape(accessRights)
             }
-        })
+            // update query
+            con.query('UPDATE users SET ? WHERE userId = ' + userID, form_data, function (err, result) {
+                //if(err) throw err
+                if (err) {
+                    // set flash message
+                    req.flash('error', err)
+                    // render to edit.ejs
+                    res.render('users/edit', {
+                        userId: req.params.userID,
+                        firstName: form_data.firstName,
+                        lastName: form_data.lastName,
+                        username: form_data.username,
+                        email: form_data.email,
+                        position: form_data.position
+                    })
+                } else {
+                    req.flash('success', 'User successfully updated');
+                    res.redirect('/users');
+                }
+            })
+        }
     }
-}})
+})
 
 // delete user
 router.get('/delete/(:userID)', function (req, res, next) {
@@ -387,23 +389,24 @@ router.get('/delete/(:userID)', function (req, res, next) {
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
     } else {
-    let userID = req.params.userID;
+        let userID = req.params.userID;
 
-    con.query('DELETE FROM users WHERE userID = ' + userID, function (err, result) {
-        //if(err) throw err
-        if (err) {
-            // set flash message
-            req.flash('error', err)
-            // redirect to user page
-            res.redirect('/users')
-        } else {
-            // set flash message
-            req.flash('success', 'User successfully deleted! ID = ' + userID)
-            // redirect to user page
-            res.redirect('/users')
-        }
-    })
-}})
+        con.query('DELETE FROM users WHERE userID = ' + userID, function (err, result) {
+            //if(err) throw err
+            if (err) {
+                // set flash message
+                req.flash('error', err)
+                // redirect to user page
+                res.redirect('/users')
+            } else {
+                // set flash message
+                req.flash('success', 'User successfully deleted! ID = ' + userID)
+                // redirect to user page
+                res.redirect('/users')
+            }
+        })
+    }
+})
 
 module.exports = router;
 
