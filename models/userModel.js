@@ -2,39 +2,39 @@
 
 const con = require("../util/database")
 
-
+// select all users
 module.exports.getAllUsers = () => {
     return con.query("SELECT userID, firstName, lastName, email, username, accessRights FROM users")
 }
-
+// create a user 
 module.exports.createUser = (firstName, lastName, email, username, password, accessRights) => {
-    return con.query("INSERT INTO users (firstName, lastName, email, username, password, accessRights) "
-        + `VALUES (?, ?, ?, ?, ?, ?)`, [firstName, lastName, email, username, password, accessRights])
+    return con.query("INSERT INTO users (firstName, lastName, email, username, password, accessRights) " +
+        `VALUES (?, ?, ?, ?, ?, ?)`, [firstName, lastName, email, username, password, accessRights])
 }
-
+// find a user by their userID
 module.exports.getUserById = (userId) => {
     return con.query("SELECT * FROM users WHERE userId = ?", [userId])
 }
-
+// find a user by their username, this we use for login
 module.exports.getUserByUsername = (username) => {
     return con.query("SELECT * FROM users WHERE username = ?", [username])
 }
-
+// find a user via their email 
 module.exports.getUserByEmail = (email) => {
     return con.query("SELECT * FROM users WHERE email = ?", [email])
 
 }
-
+// update a user
 module.exports.updateUser = (userId, firstName, lastName, email, username, password, accessRights) => {
     return con.query("UPDATE users SET firstName = ?, lastName = ?, email = ?, username = ?, password = ?, accessRights = ? WHERE userId = ?", [firstName, lastName, email, username, password, accessRights, userId])
 }
-
+// remove a user
 module.exports.deleteUser = (userId) => {
     return con.query("DELETE FROM users WHERE userId = ?", [userId])
 }
 
 
- 
+
 
 
 
@@ -162,4 +162,4 @@ const userSchema = new mongoose.Schema({
     }
     
 })
-module.exports = mongoose.model('User', userSchema) */ 
+module.exports = mongoose.model('User', userSchema) */

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Book = require('./book')
-
+// new schema for authors, everything in mongoDB is a schema 
 const authorSchema = new mongoose.Schema({
     name: {
         type: String,
@@ -21,5 +21,5 @@ authorSchema.pre('remove', function (next) {
         }
     })
 })
-
+// export Author and authorschema so we may call upon them elsewhere
 module.exports = mongoose.model('Author', authorSchema)

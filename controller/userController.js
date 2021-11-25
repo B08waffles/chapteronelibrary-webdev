@@ -67,18 +67,18 @@ router.get('/logout', function (req, res) {
 module.exports = router;
 
 */
-const flash = require('express-flash')
-var express = require('express');
-var router = express.Router();
-var con = require('../util/database');
-const bcrypt = require("bcrypt");
-const userModel = require('../models/userModel')
-const isAuth = require('../server')
+const flash = require('express-flash') // Flash messages
+var express = require('express'); // Using Express
+var router = express.Router(); // Using Express Router
+var con = require('../util/database'); //Define our database connection
+const bcrypt = require("bcrypt"); // Use bcrypt for password hashing
+const userModel = require('../models/userModel') //require sql usermodel
+
 // display login user page
 router.get('/login', function (req, res, next) {
     // render to login.ejs
-    res.render('users/login', {
-        username: '',
+    res.render('users/login', { //render the page since we're in ejs view engine
+        username: '', //render viable inputs that we will use later
         password: ''
     })
 })
@@ -119,11 +119,11 @@ router.post("/login", (request, response) => {
 */
 
 
-
+// Define what happens when we submit our login request
 router.post("/login", (req, res) => {
     let login = req.body
 
-    userModel.getUserByUsername(login.username)
+    userModel.getUserByUsername(login.username) //references the user model exported function
         .then((results) => {
             if (results.length > 0) {
                 // We found a user with that username,
@@ -135,7 +135,7 @@ router.post("/login", (req, res) => {
                     // setup session information
                     req.session.user = {
                         userID: user.userID,
-                        accessRights: user.accessRights,
+                        accessRights: user.accessRights, // Here we're assigning attributes to the users session
                         username: user.username,
                     }
 
@@ -143,51 +143,51 @@ router.post("/login", (req, res) => {
                     console.log(req.session.user, "login successful")
                     res.redirect('/')
                 } else {
-                    // let teh client know login failed
+                    // let the client know login failed
                     console.log("login failed - User credentials are not valid")
-                    res.render('login', {
+                    res.render('login', { // let the user try loging in again 
                         username,
                         password
                     })
                 }
             } else {
                 // No user found with that username
-                console.log("that user doesn't exist!")
+                console.log("that user doesn't exist!") //let the user know its a wrong username
                 res.render('login', {
                     username,
                     password
                 })
             }
         })
-        .catch((error) => {
+        .catch((error) => { // Catch if all else fails, print to console query error
             console.log("failed to get user - query error")
         })
 })
 // Logout the user
 router.post("/logout", (req, res) => {
-    req.session.destroy((error) => {
+    req.session.destroy((error) => { //destroy is a function of express-session, destroys the current session
         if (error) throw error;
         console.log('User logout.');
-        res.redirect('/users/login');
+        res.redirect('/users/login'); //redirect our logged out user to the login page
     });
 });
 
 // display user page
 router.get('/index', function (req, res, next) {
-    if (req.session.user.accessRights != "admin") {
+    if (req.session.user.accessRights != "admin") { //if not admin don't allow users to view the user list
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
-        return;
-    } else {
-        con.query('SELECT * FROM users ORDER BY userID desc', function (err, rows) {
+        return; //return the non admin user back to the state they were
+    } else { // If user is admin then...
+        con.query('SELECT * FROM users ORDER BY userID desc', function (err, rows) { //sql query 
             if (err) {
-                req.flash('error', err);
+                req.flash('error', err); //flash message error
                 // render to views/users/index.ejs
-                res.render('users/index', {
+                res.render('users/index', { //render no data to the user list page
                     data: ''
                 });
             } else {
                 // render to views/users/index.ejs
-                res.render('users/index', {
+                res.render('users/index', { // Render data to the user list page 
                     data: rows
                 });
             }
@@ -197,15 +197,15 @@ router.get('/index', function (req, res, next) {
 
 // display add user page
 router.get('/register', function (req, res, next) {
-    if (req.session.user.accessRights != "admin") {
+    if (req.session.user.accessRights != "admin") { // If user is not admin then...
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
-    } else {
-        // render to add.ejs
+    } else { // If user is admin however...
+        // render to register.ejs
         res.render('users/register', {
             firstName: '',
             lastName: '',
-            username: '',
+            username: '', //render in all these viable data inputs for later
             email: '',
             password: '',
             accessRights: ''
@@ -215,27 +215,27 @@ router.get('/register', function (req, res, next) {
 
 // add a new user
 router.post('/register', function (req, res, next) {
-    if (req.session.user.accessRights != "admin") {
+    if (req.session.user.accessRights != "admin") { // If user is not admin then...
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
-    } else {
-        let firstName = validator.escape(req.body.firstName);
+    } else { // Else if they are an admin then...
+        let firstName = validator.escape(req.body.firstName); // Validate all their inputs 
         let lastName = validator.escape(req.body.lastName);
         let username = validator.escape(req.body.username);
         let email = validator.escape(req.body.email);
         // Hash the password before inserting into DB
-        let hashedpassword = bcrypt.hashSync(req.body.password, 10);
+        let hashedpassword = bcrypt.hashSync(req.body.password, 10); // ten salt rounds should do it!
         let accessRights = validator.escape(req.body.accessRights);
         let errors = false;
 
 
-        if (username < 1 || email < 1) {
+        if (username < 1 || email < 1) { // if they didn't at least fill out the username and email inputs then...
             errors = true;
 
             // set flash message
-            req.flash('error', "Please enter name and email");
+            req.flash('error', "Please enter name and email"); // Remind them they need to enter at least some data
             // render to register.ejs with flash message
-            res.render('users/register', {
+            res.render('users/register', { // respond by re rendering the page
                 firstName: '',
                 lastName: '',
                 username: '',
@@ -248,7 +248,7 @@ router.post('/register', function (req, res, next) {
         // if no error
         if (!errors) {
 
-            var form_data = {
+            var form_data = { // collect the information in the form
                 firstName: firstName,
                 lastName: lastName,
                 username: username,
@@ -267,13 +267,13 @@ router.post('/register', function (req, res, next) {
                     res.render('users/register', {
                         firstName: form_data.firstName,
                         lastName: form_data.lastName,
-                        username: form_data.username,
+                        username: form_data.username, // Let them try again with their previously inputted data
                         email: form_data.email,
                         password: form_data.password,
                         accessRights: form_data.accessRights
                     })
                 } else {
-                    req.flash('success', 'User successfully added');
+                    req.flash('success', 'User successfully added'); // success flash message then redirect
                     res.redirect('/index');
                 }
             })
@@ -283,10 +283,10 @@ router.post('/register', function (req, res, next) {
 
 // display edit user page
 router.get('/edit/(:userID)', function (req, res, next) {
-    if (req.session.user.accessRights != "admin") {
+    if (req.session.user.accessRights != "admin") { // If user is not admin then....
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
-    } else {
+    } else { // Else if they are indeed an admin then....
         let userID = req.params.userID;
 
         con.query('SELECT * FROM users WHERE userId = ' + userID, function (err, rows, fields) {
@@ -317,30 +317,30 @@ router.get('/edit/(:userID)', function (req, res, next) {
 
 // update user data
 router.post('/edit/:userID', function (req, res, next) {
-    if (req.session.user.accessRights != "admin") {
+    if (req.session.user.accessRights != "admin") { // if user is not admin then...
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
-    } else {
+    } else { // if user is in fact an admin then....
         let userID = validator.escape(req.params.userID);
         let firstName = validator.escape(req.body.firstName);
-        let lastName = validator.escape(req.body.lastName);
+        let lastName = validator.escape(req.body.lastName); // validate all input
         let username = validator.escape(req.body.userName);
         let email = validator.escape(req.body.email);
         let hashedpassword = bcrypt.hashSync(req.body.password, 10);
         let accessRights = validator.escape(req.body.accessRights);
         let errors = false;
 
-        if (username.length === 0 || email.length === 0) {
+        if (username.length === 0 || email.length === 0) { // if username and email are null then show error
             errors = true;
             // Only allow valid emails
 
             // set flash message
             req.flash('error', "Please enter name and email");
-            // render to add.ejs with flash message
+            // render to edit.ejs with flash message
             res.render('users/edit', {
                 userID: req.params.userID,
                 firstName: req.params.firstName,
-                lastName: req.params.lastName,
+                lastName: req.params.lastName, //let them try again with their previosly filled out data
                 lastName: req.params.lastName,
                 username: req.params.username,
                 email: req.params.email,
@@ -354,7 +354,7 @@ router.post('/edit/:userID', function (req, res, next) {
             var form_data = {
                 firstName: validator.escape(firstName),
                 lastName: validator.escape(lastName),
-                username: validator.escape(username),
+                username: validator.escape(username), // validate form input
                 email: validator.escape(email),
                 password: hashedpassword,
                 accessRights: validator.escape(accessRights)
@@ -376,7 +376,7 @@ router.post('/edit/:userID', function (req, res, next) {
                     })
                 } else {
                     req.flash('success', 'User successfully updated');
-                    res.redirect('/users');
+                    res.redirect('/users'); // take them to the user list where they will see the updated user
                 }
             })
         }
@@ -385,11 +385,11 @@ router.post('/edit/:userID', function (req, res, next) {
 
 // delete user
 router.get('/delete/(:userID)', function (req, res, next) {
-    if (req.session.user.accessRights != "admin") {
+    if (req.session.user.accessRights != "admin") { // only allow admins to delete users
         res.status(403).json('Status 403, You are not authorised to use this page, please go back')
         return;
-    } else {
-        let userID = req.params.userID;
+    } else { // if they are admins then next
+        let userID = req.params.userID; // get user by id
 
         con.query('DELETE FROM users WHERE userID = ' + userID, function (err, result) {
             //if(err) throw err
@@ -407,7 +407,7 @@ router.get('/delete/(:userID)', function (req, res, next) {
         })
     }
 })
-
+// make sure we can call upon this pages router functions 
 module.exports = router;
 
 

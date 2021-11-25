@@ -10,13 +10,12 @@ const bcrypt = require('bcrypt') //password hashing package
 const cookieSession = require('cookie-session'); */
 const validator = require('express-validator')
 const cookieParser = require('cookie-parser');
-const session = require("express-session");
+const session = require("express-session"); // allows us to overcome the stateless nature of http 
 const expressLayouts = require('express-ejs-layouts'); //define our view engine as ejs
 const bodyParser = require('body-parser');
-const methodOverride = require('method-override');
-const passport = require('passport');
-server.use(cookieParser());
+const methodOverride = require('method-override');  // allows us to override form functions like post and put
 
+server.use(cookieParser());
 const flash = require('express-flash'); //flash is for error messages
 // integrate database    This mongodb is setup for books and authors, see /util/database for sql users setup
 const mongoose = require('mongoose');
@@ -27,15 +26,15 @@ const db = mongoose.connection;
 db.on('error', error => console.error(error));
 db.once('open', () => console.log('Connected to Mongoose'));
 
-const logger = require('morgan');
-const path = require('path');
+const logger = require('morgan');  // puts everything into the console any action anyone takes
+
 
 // enable form method overides
-server.use(methodOverride('_method'));
+server.use(methodOverride('_method'));// override form actions like post
 server.use(express.static('public')); //define 'public' as an accessable folder
 
 server.use(logger('dev')); //tells us what is happening when we run a request
-
+// Enable session and cookie to overcome the stateless nature of http protocol. 
 server.use(session({
   secret: 'secret phrase abc123',
   resave: true,
@@ -49,10 +48,10 @@ server.use(session({
 }))
 
 // Define the view engine to us Express Layouts and to read .ejs files
-server.set('view engine', 'ejs');
-server.set('views', __dirname + '/views');
+server.set('view engine', 'ejs');  // ejs is a template language
+server.set('views', __dirname + '/views'); // make it so that views dont show in the url bar
 // put all common html elements in the one file "layouts" to be added to other pages
-server.set('layout', 'layouts/layout');
+server.set('layout', 'layouts/layout'); // every page we use will use layouts/layout.ejs
 server.use(expressLayouts);
 
 
@@ -76,41 +75,8 @@ server.use(flash());
 //server.use(expressValidator());
 
 
-// User is not authenticated
-function isNotAuth(request, response, next) {
-  if (request.session.isAuth) {
-    next();
-  } else {
-    response.status(401).render('401');
-  }
-};
 
-// User is authenticated
-function isAuth(request, response, next) {
-  if (request.session.isAuth) {
-    response.redirect('/');
-  } else {
-    next();
-  }
-};
-
-// Current user 
-function currentUser(request, response, next) {
-  if (request.session.userID) {
-    response.locals.userID = request.session.userID;
-    next();
-  } else {
-    response.locals.userID = null;
-    next();
-  }
-};
-
-module.exports =
-  isNotAuth,
-  isAuth,
-  currentUser;
-
-// Jaspers code, not sure about it 
+// Jaspers code
 // Setup our own access control middleware
 // Must happen after JSON and session middleware but before static files
 server.use((req, res, next) => {
@@ -153,12 +119,12 @@ const userController = require("./controller/userController")
 const indexRouter = require('./controller/index');
 const authorRouter = require('./controller/authors');
 const bookRouter = require('./controller/books');
-const errorRouter = require('./controller/errorController')
+// use the routes/controllers
 server.use("/users", userController)
 server.use('/', indexRouter)
 server.use('/authors', authorRouter)
 server.use('/books', bookRouter)
-server.use('/error', errorRouter)
+
 
 
 

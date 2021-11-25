@@ -1,6 +1,6 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose') // Mongoose is our ORM for NoSQL MongoDB 
 
-const bookSchema = new mongoose.Schema({
+const bookSchema = new mongoose.Schema({ // In MongoDB, everything is a Schema 
     title: {
         type: String,
         required: true
@@ -14,14 +14,14 @@ const bookSchema = new mongoose.Schema({
     },
     publishDate: {
         type: Date,
-        required: true 
+        required: true
     },
     coverImage: {
-        type: Buffer, 
+        type: Buffer,
         required: true
     },
     coverImageType: {
-        type: String, 
+        type: String,
         required: true
     },
     author: {
@@ -31,10 +31,10 @@ const bookSchema = new mongoose.Schema({
     }
 })
 // Create a function that allows book covers to be displayed on All Books page 
-bookSchema.virtual('coverImagePath').get(function() {
+bookSchema.virtual('coverImagePath').get(function () {
     if (this.coverImage != null && this.coverImageType != null) {
-      return `data:${this.coverImageType};charset=utf-8;base64,${this.coverImage.toString('base64')}`
+        return `data:${this.coverImageType};charset=utf-8;base64,${this.coverImage.toString('base64')}`
     }
-  })
-  
-  module.exports = mongoose.model('Book', bookSchema)
+})
+// Export book and bookshema so we may use them elsewhere
+module.exports = mongoose.model('Book', bookSchema)
