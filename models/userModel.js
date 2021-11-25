@@ -33,6 +33,7 @@ module.exports.deleteUser = (userId) => {
     return con.query("DELETE FROM users WHERE userId = ?", [userId])
 }
 
+
  
 
 

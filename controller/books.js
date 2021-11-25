@@ -5,6 +5,8 @@ const Author = require('../models/author')
 const imageMimeTypes = ['image/jpeg', 'image/png', 'images/gif']
 const validator = require('validator')
 
+
+
 // All Books Route
 router.get('/', async (req, res) => {
   let query = Book.find()
@@ -48,7 +50,9 @@ router.post('/', async (req, res) => {
 
   try {
     const newBook = await book.save()
+    
     res.redirect(`books/${newBook.id}`)
+    
   } catch {
     renderNewPage(res, book, true)
   }
@@ -94,6 +98,7 @@ router.put('/:id', async (req, res) => {
     }
     await book.save()
     res.redirect(`/books/${book.id}`)
+    
   } catch {
     if (book != null) {
       renderEditPage(res, book, true)
