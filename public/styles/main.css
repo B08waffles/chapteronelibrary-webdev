@@ -90,6 +90,7 @@ blockquote:before {
     background-color: #fff;
     color: inherit;
     padding: 0;
+     
     margin: 30px auto 15px auto;
 }
 
@@ -264,18 +265,17 @@ ul#menu li a.current {
 
 /* Footer */
 #footer {
-    background: #7fb50c;
-    background: -moz-linear-gradient(top, #7fb50c 0%, #61a810 50%, #4ea800 51%, #568e07 100%);
-    background: -webkit-linear-gradient(top, #7fb50c 0%, #61a810 50%, #4ea800 51%, #568e07 100%);
-    background: linear-gradient(to bottom, #7fb50c 0%, #61a810 50%, #4ea800 51%, #568e07 100%);
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#7fb50c', endColorstr='#568e07', GradientType=0);
-    color: #fff;
-    height: 40px;
-    text-align: center;
-    font-size: 12px;
-    padding: 0;
-    margin: 0 auto;
-    border: 10px solid #fff;
+    background: #7fb50c !important;
+    background: -moz-linear-gradient(top, #7fb50c 0%, #61a810 50%, #4ea800 51%, #568e07 100%) !important;
+    background: -webkit-linear-gradient(top, #7fb50c 0%, #61a810 50%, #4ea800 51%, #568e07 100%) !important;
+    background: linear-gradient(to bottom, #7fb50c 0%, #61a810 50%, #4ea800 51%, #568e07 100%) !important;
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#7fb50c', endColorstr='#568e07', GradientType=0) !important;
+    color: #fff !important;
+    text-align: center !important;
+    font-size: 12px !important;
+    padding: 1em !important;
+    margin: 0 auto !important;
+    border: 10px solid #fff !important;
 }
 
 #footer a {

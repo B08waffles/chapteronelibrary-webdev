@@ -3,16 +3,16 @@
   <%= messages.error %>
 <% } %> 
 <form action="/users/login" method="POST" name='login-user-form' id='login-user-form'>
-  <div>
+  <div class="mb-3">
     <label for="username">Username</label>
     <input type="text" id="username" name="username" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}"
-    title="Must contain at least one number and one uppercase and lowercase letter, and at least 5 or more characters">
+    title="Must contain at least one number and one uppercase and lowercase letter, and at least 5 or more characters" class='form-control'>
   </div>
-  <div>
+  <div class='mb-3'>
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{5,}"
-    title="Must contain at least one number and one uppercase and lowercase letter, and at least 5 or more characters" >
+    title="Must contain at least one number and one uppercase and lowercase letter, and at least 5 or more characters" class='form-control' >
   </div>
-  <button type="submit">Login</button>
+  <button type="submit" class="btn btn-primary">Login</button>
 </form>
 

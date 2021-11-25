@@ -1,14 +1,15 @@
 <h2>Search Authors</h2>
 <form action="/authors" method="GET">
     <label>Name</label>
-    <input type="text" name="name" value="<%= searchOptions.name %>" pattern="[A-Za-z].{3,}"  title="Must contain only lowercase and uppercase letters">
-    <button type="submit">Search</button>
+    <input type="text" name="name" class='form-control' value="<%= searchOptions.name %>" pattern="[A-Za-z].{3,}"
+        title="Must contain only lowercase and uppercase letters">
+    <button type="submit" class="btn btn-info">Search</button>
 </form>
 <br>
 <% authors.forEach(author => { %>
-<div><%= author.name %></div>
-<a href="/authors/<%= author.id %>">View</a>
-<a href="/authors/<%= author.id %>/edit">Edit</a>
+<div class='row'><%= author.name %></div>
+<div class='col'><a href="/authors/<%= author.id %>">View</a></div>
+<div class='col'><a href="/authors/<%= author.id %>/edit">Edit</a></div>
 <%- include('../partials/deleteForm',
               { url: `/authors/${author.id}` }) %>
 <% }) %>
